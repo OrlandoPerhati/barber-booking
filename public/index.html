@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Barber Appointments</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f9f9f9; }
+    .barber-container { background: white; border-radius: 12px; padding: 20px; margin-bottom: 40px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+    .calendar { max-width: 900px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="barber-container">
+    <h2>Barber: John Doe</h2>
+    <div id="calendar-john" class="calendar"></div>
+  </div>
+
+  <div class="barber-container">
+    <h2>Barber: Jane Smith</h2>
+    <div id="calendar-jane" class="calendar"></div>
+  </div>
+
+  <script>
+    function renderCalendar(calendarId, barberName) {
+      const calendarEl = document.getElementById(calendarId);
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        slotMinTime: '09:00:00',
+        slotMaxTime: '21:00:00',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'timeGridDay,timeGridWeek'
+        },
+        events: async function (fetchInfo, successCallback) {
+          const res = await fetch(`/appointments/${barberName.toLowerCase()}`);
+          const data = await res.json();
+          const events = data.map(a => ({
+            id: a.id,
+            title: a.customer ? `Reserved by ${a.customer}` : 'Available',
+            start: a.start,
+            end: a.end,
+            color: a.customer ? 'red' : 'green'
+          }));
+          successCallback(events);
+        },
+        eventClick: async function(info) {
+          if (info.event.title.startsWith('Reserved')) {
+            alert('This time is already booked.');
+            return;
+          }
+
+          const customer = prompt(`Enter your name to book with ${barberName}`);
+          if (!customer) return;
+
+          const res = await fetch(`/appointments/${info.event.id}/book`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customer })
+          });
+
+          if (res.ok) {
+            info.event.setProp('title', `Reserved by ${customer}`);
+            info.event.setProp('color', 'red');
+            alert('Appointment booked!');
+          } else {
+            const err = await res.json();
+            alert(err.error || 'Booking failed');
+          }
+        }
+      });
+
+      calendar.render();
+    }
+
+    renderCalendar('calendar-john', 'john');
+    renderCalendar('calendar-jane', 'jane');
+  </script>
+</body>
+</html>

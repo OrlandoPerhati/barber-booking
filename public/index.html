@@ -163,11 +163,18 @@
       transform: translateY(-2px);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 14px 26px rgba(34, 54, 38, 0.28);
     }
-    td[title="No appointment slot available"],
-    td[title="Past time slot"] {
+    td[title="No appointment slot available"] {
       background: linear-gradient(180deg, rgba(255, 248, 240, 0.05), rgba(255, 248, 240, 0.02));
       border-color: rgba(214, 183, 144, 0.08);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+    td.past {
+      background: linear-gradient(180deg, #b35b55, #92463f 62%, #74362f);
+      color: #fff4f1;
+      cursor: default;
+      font-weight: 700;
+      border-color: rgba(190, 92, 82, 0.62);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 22px rgba(67, 24, 20, 0.24);
     }
     button {
       padding: 12px;
@@ -454,7 +461,7 @@
           const isToday = slotStart.toDateString() === now.toDateString();
 
           if (isToday && slotStart < now) {
-            tbody += '<td title="Past time slot"></td>';
+            tbody += '<td class="past" title="This time has already passed">Passed</td>';
             continue;
           }
 

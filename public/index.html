@@ -6,15 +6,15 @@
   <title>Haircut Time</title>
   <style>
     :root {
-      --ink: #f7efe6;
-      --muted-ink: #d9cab8;
-      --panel: rgba(33, 25, 20, 0.84);
-      --panel-strong: rgba(24, 18, 15, 0.94);
-      --line: rgba(214, 183, 144, 0.34);
-      --accent: #d8b088;
-      --accent-strong: #b77d52;
-      --green: #9cb8a0;
-      --shadow: 0 22px 55px rgba(0, 0, 0, 0.34);
+      --ink: #f6efe1;
+      --muted-ink: #c7bcaa;
+      --panel: rgba(9, 10, 10, 0.7);
+      --panel-strong: rgba(8, 8, 7, 0.94);
+      --line: rgba(207, 174, 112, 0.34);
+      --accent: #d0ad6a;
+      --accent-strong: #f0d08b;
+      --green: #a9c7ad;
+      --shadow: 0 26px 70px rgba(0, 0, 0, 0.48);
     }
 
     * {
@@ -28,7 +28,7 @@
       font-family: "Trebuchet MS", "Gill Sans", sans-serif;
       color: var(--ink);
       background:
-        linear-gradient(rgba(24, 17, 14, 0.62), rgba(22, 18, 16, 0.88)),
+        linear-gradient(rgba(3, 4, 4, 0.56), rgba(3, 4, 4, 0.82)),
         url("https://png.pngtree.com/background/20250125/original/pngtree-barber-shop-salon-setup-with-classic-chairs-and-elegant-mirrors-picture-image_16217040.jpg") center/cover fixed no-repeat;
     }
 
@@ -54,8 +54,8 @@
       padding: 5px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(24, 18, 15, 0.72);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      background: rgba(7, 8, 8, 0.78);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.32);
     }
 
     .language-switch button {
@@ -70,22 +70,22 @@
     }
 
     .language-switch button.active {
-      color: #1e1714;
+      color: #101010;
       background: linear-gradient(135deg, var(--accent), var(--accent-strong));
     }
 
     .intro,
     .info-panel {
       border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(56, 42, 34, 0.86), var(--panel));
+      background: linear-gradient(180deg, rgba(18, 18, 17, 0.86), var(--panel));
       box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
     }
 
     .intro {
       min-height: 420px;
       padding: clamp(28px, 5vw, 54px);
-      border-radius: 22px;
+      border-radius: 16px;
       display: grid;
       align-content: end;
     }
@@ -105,7 +105,7 @@
       line-height: 0.95;
       letter-spacing: 0;
       text-transform: uppercase;
-      text-shadow: 0 12px 28px rgba(0, 0, 0, 0.38);
+      text-shadow: 0 14px 36px rgba(0, 0, 0, 0.58);
     }
 
     .intro p {
@@ -135,7 +135,7 @@
       font-weight: 800;
       border: 0;
       cursor: pointer;
-      color: #1e1714;
+      color: #101010;
       background: linear-gradient(135deg, var(--accent), var(--accent-strong));
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
       font: inherit;
@@ -145,7 +145,7 @@
     button.button.secondary {
       color: var(--ink);
       border: 1px solid var(--line);
-      background: rgba(255, 249, 241, 0.08);
+      background: rgba(246, 239, 225, 0.055);
       box-shadow: none;
     }
 
@@ -154,7 +154,7 @@
       border: 1px solid var(--line);
       border-radius: 18px;
       padding: 22px;
-      background: linear-gradient(180deg, rgba(56, 42, 34, 0.9), var(--panel-strong));
+      background: linear-gradient(180deg, rgba(18, 18, 17, 0.9), var(--panel-strong));
       box-shadow: var(--shadow);
       backdrop-filter: blur(8px);
     }
@@ -193,9 +193,9 @@
     .service-card {
       min-height: 120px;
       padding: 14px;
-      border: 1px solid rgba(214, 183, 144, 0.2);
+      border: 1px solid rgba(207, 174, 112, 0.2);
       border-radius: 12px;
-      background: rgba(255, 249, 241, 0.06);
+      background: rgba(246, 239, 225, 0.045);
     }
 
     .service-card h3 {
@@ -221,9 +221,9 @@
 
     .info-group {
       padding: 16px;
-      border: 1px solid rgba(214, 183, 144, 0.2);
+      border: 1px solid rgba(207, 174, 112, 0.2);
       border-radius: 12px;
-      background: rgba(255, 249, 241, 0.06);
+      background: rgba(246, 239, 225, 0.045);
     }
 
     .info-group h2 {
@@ -258,7 +258,7 @@
       gap: 12px;
       align-items: center;
       padding: 10px 0;
-      border-top: 1px solid rgba(214, 183, 144, 0.18);
+      border-top: 1px solid rgba(207, 174, 112, 0.18);
     }
 
     .barber-row:first-child {
@@ -281,7 +281,7 @@
       height: 8px;
       border-radius: 50%;
       background: var(--green);
-      box-shadow: 0 0 14px rgba(156, 184, 160, 0.78);
+      box-shadow: 0 0 14px rgba(169, 199, 173, 0.78);
     }
 
     @media (max-width: 780px) {

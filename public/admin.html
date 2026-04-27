@@ -403,6 +403,7 @@
     const mobileQuery = window.matchMedia('(max-width: 700px)');
     let selectedBarber = barberNames[0];
     let selectedDayIndex = 0;
+    let liveUpdateTimer = null;
 
     function escapeHtml(value) {
       return String(value)
@@ -692,6 +693,20 @@
       attachCellListeners();
     }
 
+    function scheduleCalendarRefresh() {
+      clearTimeout(liveUpdateTimer);
+      liveUpdateTimer = setTimeout(() => {
+        refreshCalendars();
+      }, 300);
+    }
+
+    function connectLiveUpdates() {
+      if (!window.EventSource) return;
+
+      const events = new EventSource(`${API_BASE}/api/events`);
+      events.addEventListener('appointments-changed', scheduleCalendarRefresh);
+    }
+
     // Attach click listeners to available and reserved cells
     function attachCellListeners() {
       document.querySelectorAll('td.available, td.reserved').forEach(cell => {
@@ -717,6 +732,7 @@
 
     // Initial load
     refreshCalendars();
+    connectLiveUpdates();
 
   </script>
 </body>

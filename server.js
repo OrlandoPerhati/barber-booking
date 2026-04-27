@@ -45,6 +45,32 @@ const appointmentSchema = new mongoose.Schema({
 appointmentSchema.index({ barber: 1, start: 1 }, { unique: true });
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
+const eventClients = new Set();
+
+function sendCalendarEvent(res, eventName, data) {
+  res.write(`event: ${eventName}\n`);
+  res.write(`data: ${JSON.stringify(data)}\n\n`);
+}
+
+function broadcastCalendarChange(reason) {
+  const payload = {
+    reason,
+    at: new Date().toISOString()
+  };
+
+  for (const client of eventClients) {
+    if (client.writableEnded) {
+      eventClients.delete(client);
+      continue;
+    }
+
+    try {
+      sendCalendarEvent(client, 'appointments-changed', payload);
+    } catch (err) {
+      eventClients.delete(client);
+    }
+  }
+}
 
 function parseCookies(req) {
   const header = req.headers.cookie || '';
@@ -227,6 +253,26 @@ app.get('/appointments/:barber', async (req, res) => {
   }
 });
 
+app.get('/api/events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+
+  eventClients.add(res);
+  sendCalendarEvent(res, 'connected', { at: new Date().toISOString() });
+
+  const keepAlive = setInterval(() => {
+    sendCalendarEvent(res, 'heartbeat', { at: new Date().toISOString() });
+  }, 25000);
+
+  req.on('close', () => {
+    clearInterval(keepAlive);
+    eventClients.delete(res);
+  });
+});
+
 app.get('/api/admin/appointments/:barber', requireAdminApi, async (req, res) => {
   const barber = req.params.barber;
 
@@ -293,6 +339,7 @@ app.post('/api/book', async (req, res) => {
     );
 
     if (appointment) {
+      broadcastCalendarChange('booked');
       res.json({ success: true, message: 'Appointment booked!', appointment });
     } else {
       res.status(400).json({ success: false, message: 'Slot is not available or already booked.' });
@@ -332,6 +379,7 @@ app.post('/api/appointments', requireAdminApi, async (req, res) => {
     });
 
     await newAppointment.save();
+    broadcastCalendarChange('slot-created');
 
     res.status(201).json({ success: true, message: 'Appointment slot created', appointment: newAppointment });
   } catch (err) {
@@ -346,6 +394,7 @@ app.delete('/api/cancel/:id', requireAdminApi, async (req, res) => {
   try {
     const result = await Appointment.findByIdAndUpdate(id, { customer: null });
     if (result) {
+      broadcastCalendarChange('cancelled');
       res.json({ success: true, message: 'Booking cancelled.' });
     } else {
       res.status(404).json({ success: false, message: 'Appointment not found.' });

@@ -428,7 +428,10 @@
 
   <script>
    const barberNames = ['deni', 'cerri'];
-    const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const DAY_LABELS = {
+      sq: ['Die', 'Hen', 'Mar', 'Mer', 'Enj', 'Pre', 'Sht'],
+      en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    };
     const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
     const mobileQuery = window.matchMedia('(max-width: 700px)');
     let selectedBarber = barberNames[0];
@@ -505,6 +508,10 @@
 
     function t(key) {
       return translations[getLanguage()][key];
+    }
+
+    function dayLabel(date) {
+      return DAY_LABELS[getLanguage()][date.getDay()];
     }
 
     function applyLanguage() {
@@ -592,7 +599,7 @@
 
       dayTabs.innerHTML = days.map((day, index) => `
         <button type="button" class="${index === selectedDayIndex ? 'active' : ''}" data-day-tab="${index}">
-          ${DAYS[day.getDay()]}
+          ${dayLabel(day)}
           <small>${formatDate(day)}</small>
         </button>
       `).join('');
@@ -611,7 +618,7 @@
     function createTableHeader(days) {
       let thead = `<tr><th class="time-col">${t('time')}</th>`;
       for(let day of days) {
-        thead += `<th>${DAYS[day.getDay()]}<br>${formatDate(day)}</th>`;
+        thead += `<th>${dayLabel(day)}<br>${formatDate(day)}</th>`;
       }
       thead += '</tr>';
       return thead;

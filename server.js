@@ -15,6 +15,7 @@ const BUSINESS_END_HOUR = 21;
 const SLOT_MINUTES = [0, 30];
 const BOOKING_WINDOW_DAYS = 7;
 const ADMIN_COOKIE = 'barber_admin';
+const ADMIN_PASSWORD_KEY = 'adminPasswordHash';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const COOKIE_SECRET = process.env.COOKIE_SECRET;
 const mongoURI = process.env.MONGODB_URI;
@@ -47,7 +48,57 @@ const appointmentSchema = new mongoose.Schema({
 appointmentSchema.index({ barber: 1, start: 1 }, { unique: true });
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
+const settingSchema = new mongoose.Schema({
+  key: { type: String, unique: true },
+  value: String,
+  updatedAt: Date
+});
+const Setting = mongoose.model('Setting', settingSchema);
 const eventClients = new Set();
+
+function timingSafeStringEqual(a, b) {
+  const left = Buffer.from(String(a));
+  const right = Buffer.from(String(b));
+
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(left, right);
+}
+
+function hashPassword(password) {
+  const iterations = 310000;
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256').toString('hex');
+  return `pbkdf2_sha256$${iterations}$${salt}$${hash}`;
+}
+
+function verifyPasswordHash(password, storedHash) {
+  const [algorithm, iterationsText, salt, expectedHash] = String(storedHash).split('$');
+
+  if (algorithm !== 'pbkdf2_sha256' || !iterationsText || !salt || !expectedHash) {
+    return false;
+  }
+
+  const iterations = Number(iterationsText);
+  if (!Number.isInteger(iterations) || iterations < 100000) {
+    return false;
+  }
+
+  const actualHash = crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256').toString('hex');
+  return timingSafeStringEqual(actualHash, expectedHash);
+}
+
+async function verifyAdminPassword(password) {
+  const setting = await Setting.findOne({ key: ADMIN_PASSWORD_KEY });
+
+  if (setting && setting.value) {
+    return verifyPasswordHash(password, setting.value);
+  }
+
+  return timingSafeStringEqual(password, ADMIN_PASSWORD);
+}
 
 function sendCalendarEvent(res, eventName, data) {
   res.write(`event: ${eventName}\n`);
@@ -326,25 +377,66 @@ app.get('/api/admin/appointments/:barber', requireAdminApi, async (req, res) => 
   }
 });
 
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   const { password } = req.body;
 
-  if (password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ success: false, message: 'Incorrect password' });
-  }
+  try {
+    const passwordIsValid = await verifyAdminPassword(password);
 
-  const secure = process.env.NODE_ENV === 'production' || req.secure ? '; Secure' : '';
-  res.setHeader(
-    'Set-Cookie',
-    `${ADMIN_COOKIE}=${encodeURIComponent(createAdminToken())}; HttpOnly; SameSite=Lax; Path=/${secure}`
-  );
-  res.json({ success: true });
+    if (!passwordIsValid) {
+      return res.status(401).json({ success: false, message: 'Incorrect password' });
+    }
+
+    const secure = process.env.NODE_ENV === 'production' || req.secure ? '; Secure' : '';
+    res.setHeader(
+      'Set-Cookie',
+      `${ADMIN_COOKIE}=${encodeURIComponent(createAdminToken())}; HttpOnly; SameSite=Lax; Path=/${secure}`
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
 app.post('/api/admin/logout', (req, res) => {
   const secure = process.env.NODE_ENV === 'production' || req.secure ? '; Secure' : '';
   res.setHeader('Set-Cookie', `${ADMIN_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`);
   res.json({ success: true });
+});
+
+app.post('/api/admin/password', requireAdminApi, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ success: false, message: 'Current password and new password are required' });
+  }
+
+  if (String(newPassword).length < 6) {
+    return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+  }
+
+  try {
+    const passwordIsValid = await verifyAdminPassword(currentPassword);
+
+    if (!passwordIsValid) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    await Setting.findOneAndUpdate(
+      { key: ADMIN_PASSWORD_KEY },
+      {
+        value: hashPassword(newPassword),
+        updatedAt: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({ success: true, message: 'Password changed' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
 app.post('/api/book', async (req, res) => {

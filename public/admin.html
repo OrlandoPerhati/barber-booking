@@ -352,6 +352,71 @@
       color: #fff1ec;
       font-size: 14px;
     }
+    #settings-toggle {
+      width: auto;
+      min-width: 110px;
+      margin: 0;
+      padding: 10px 18px;
+      font-size: 14px;
+    }
+    .settings-panel {
+      display: none;
+      max-width: 680px;
+      margin: 0 auto 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(17, 18, 18, 0.88), var(--panel));
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    .settings-panel.active {
+      display: block;
+    }
+    .settings-panel p {
+      margin: 6px 0 14px;
+      color: var(--muted-ink);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .settings-form {
+      display: grid;
+      gap: 10px;
+    }
+    .settings-field {
+      display: grid;
+      gap: 6px;
+    }
+    .settings-field label {
+      color: var(--muted-ink);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .settings-field input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(246, 239, 225, 0.065);
+      color: var(--ink);
+      font: inherit;
+      box-sizing: border-box;
+    }
+    .settings-feedback {
+      min-height: 20px;
+      margin: 10px 0 0;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .settings-feedback.success {
+      color: #a9d8ad;
+    }
+    .settings-feedback.error {
+      color: #ffb2a8;
+    }
     .language-switch {
       display: inline-flex;
       gap: 5px;
@@ -406,6 +471,10 @@
         margin-bottom: 10px;
       }
       .manual-booking {
+        margin-bottom: 12px;
+        padding: 14px;
+      }
+      .settings-panel {
         margin-bottom: 12px;
         padding: 14px;
       }
@@ -484,12 +553,33 @@
 <body>
   <h1 data-i18n="pageTitle">Admin - Menaxho takimet</h1>
   <div class="admin-actions">
+    <button id="settings-toggle" type="button" data-i18n="settings" aria-expanded="false" aria-controls="settings-panel">Cilësimet</button>
     <button id="logout-btn" type="button" data-i18n="logout">Dil</button>
     <div class="language-switch" aria-label="Language">
       <button type="button" data-lang-option="sq">AL</button>
       <button type="button" data-lang-option="en">EN</button>
     </div>
   </div>
+  <section class="settings-panel" id="settings-panel" aria-labelledby="settings-title">
+    <h2 id="settings-title" data-i18n="settingsTitle">Cilësimet</h2>
+    <p data-i18n="settingsIntro">Ndrysho fjalëkalimin e adminit. Pas ndryshimit, hyrjet e reja do përdorin fjalëkalimin e ri.</p>
+    <form class="settings-form" id="password-form">
+      <div class="settings-field">
+        <label for="current-password" data-i18n="currentPassword">Fjalëkalimi aktual</label>
+        <input type="password" id="current-password" autocomplete="current-password" required />
+      </div>
+      <div class="settings-field">
+        <label for="new-password" data-i18n="newPassword">Fjalëkalimi i ri</label>
+        <input type="password" id="new-password" autocomplete="new-password" required />
+      </div>
+      <div class="settings-field">
+        <label for="confirm-password" data-i18n="confirmPassword">Konfirmo fjalëkalimin</label>
+        <input type="password" id="confirm-password" autocomplete="new-password" required />
+      </div>
+      <button type="submit" data-i18n="savePassword">Ruaj fjalëkalimin</button>
+      <p class="settings-feedback" id="settings-feedback" aria-live="polite"></p>
+    </form>
+  </section>
   <section class="manual-booking" aria-labelledby="manual-booking-title">
     <div class="manual-booking-header">
       <h2 id="manual-booking-title" data-i18n="manualTitle">Shto takim manualisht</h2>
@@ -564,7 +654,18 @@
       sq: {
         documentTitle: 'Admin - Takimet',
         pageTitle: 'Admin - Menaxho takimet',
+        settings: 'Cilësimet',
         logout: 'Dil',
+        settingsTitle: 'Cilësimet',
+        settingsIntro: 'Ndrysho fjalëkalimin e adminit. Pas ndryshimit, hyrjet e reja do përdorin fjalëkalimin e ri.',
+        currentPassword: 'Fjalëkalimi aktual',
+        newPassword: 'Fjalëkalimi i ri',
+        confirmPassword: 'Konfirmo fjalëkalimin',
+        savePassword: 'Ruaj fjalëkalimin',
+        passwordMismatch: 'Fjalëkalimet nuk përputhen.',
+        passwordTooShort: 'Fjalëkalimi i ri duhet të ketë të paktën 6 karaktere.',
+        passwordChanged: 'Fjalëkalimi u ndryshua me sukses!',
+        passwordFailed: 'Ndryshimi i fjalëkalimit dështoi.',
         deniSchedule: 'Orari i Denit',
         cerriSchedule: 'Orari i Cerrit',
         customerPlaceholder: 'Shkruaj emrin e klientit',
@@ -605,7 +706,18 @@
       en: {
         documentTitle: 'Admin - Barber Appointments',
         pageTitle: 'Admin - Manage Appointments',
+        settings: 'Settings',
         logout: 'Log Out',
+        settingsTitle: 'Settings',
+        settingsIntro: 'Change the admin password. New logins will use the new password after it is saved.',
+        currentPassword: 'Current password',
+        newPassword: 'New password',
+        confirmPassword: 'Confirm password',
+        savePassword: 'Save password',
+        passwordMismatch: 'Passwords do not match.',
+        passwordTooShort: 'New password must be at least 6 characters.',
+        passwordChanged: 'Password changed successfully!',
+        passwordFailed: 'Password change failed.',
         deniSchedule: "Deni's Schedule",
         cerriSchedule: "Cerri's Schedule",
         customerPlaceholder: 'Enter customer name',
@@ -852,6 +964,13 @@
     const btnCancelBooking = document.getElementById('modal-cancel-btn');
     const btnClose = document.getElementById('modal-close-btn');
     const btnLogout = document.getElementById('logout-btn');
+    const btnSettings = document.getElementById('settings-toggle');
+    const settingsPanel = document.getElementById('settings-panel');
+    const passwordForm = document.getElementById('password-form');
+    const currentPasswordInput = document.getElementById('current-password');
+    const newPasswordInput = document.getElementById('new-password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
+    const settingsFeedback = document.getElementById('settings-feedback');
     const manualForm = document.getElementById('manual-booking-form');
     const manualBarber = document.getElementById('manual-barber');
     const manualDate = document.getElementById('manual-date');
@@ -880,6 +999,47 @@
       manualFeedback.textContent = message;
       manualFeedback.classList.toggle('success', type === 'success');
       manualFeedback.classList.toggle('error', type === 'error');
+    }
+
+    function setSettingsFeedback(message, type) {
+      settingsFeedback.textContent = message;
+      settingsFeedback.classList.toggle('success', type === 'success');
+      settingsFeedback.classList.toggle('error', type === 'error');
+    }
+
+    async function changeAdminPassword() {
+      const currentPassword = currentPasswordInput.value;
+      const newPassword = newPasswordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      if (newPassword.length < 6) {
+        setSettingsFeedback(t('passwordTooShort'), 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        setSettingsFeedback(t('passwordMismatch'), 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.success) {
+          passwordForm.reset();
+          setSettingsFeedback(t('passwordChanged'), 'success');
+        } else {
+          setSettingsFeedback(getLanguage() === 'en' ? (data.message || t('passwordFailed')) : t('passwordFailed'), 'error');
+        }
+      } catch (err) {
+        setSettingsFeedback(t('passwordFailed'), 'error');
+        console.error(err);
+      }
     }
 
     function getManualStartISO() {
@@ -983,6 +1143,11 @@
     btnLogout.onclick = async () => {
       await fetch(`${API_BASE}/api/admin/logout`, { method: 'POST' });
       window.location.href = '/login.html';
+    };
+    btnSettings.onclick = () => {
+      const isOpen = settingsPanel.classList.toggle('active');
+      btnSettings.setAttribute('aria-expanded', String(isOpen));
+      if (isOpen) currentPasswordInput.focus();
     };
     modal.onclick = e => {
       if (e.target === modal) closeModal();
@@ -1102,6 +1267,11 @@
     manualForm.addEventListener('submit', e => {
       e.preventDefault();
       bookManualAppointment();
+    });
+
+    passwordForm.addEventListener('submit', e => {
+      e.preventDefault();
+      changeAdminPassword();
     });
 
     mobileQuery.addEventListener('change', refreshCalendars);

@@ -5,6 +5,8 @@ const path = require('path');
 const crypto = require('crypto');
 require('dotenv').config();
 
+process.env.TZ = process.env.TZ || 'Europe/Tirane';
+
 const app = express();
 const port = Number(process.env.PORT || 3000);
 const BARBERS = ['deni', 'cerri'];
@@ -146,16 +148,11 @@ function validateSlot(barber, startDate) {
   }
 
   const now = new Date();
-  const { rangeStart, rangeEnd } = buildRange();
   const hour = startDate.getHours();
   const minute = startDate.getMinutes();
 
   if (startDate < now) {
     return 'Cannot book an appointment in the past.';
-  }
-
-  if (startDate < rangeStart || startDate >= rangeEnd) {
-    return 'You can only book up to 1 week in advance.';
   }
 
   if (hour < BUSINESS_START_HOUR || hour >= BUSINESS_END_HOUR || !SLOT_MINUTES.includes(minute)) {
@@ -167,6 +164,40 @@ function validateSlot(barber, startDate) {
   }
 
   return null;
+}
+
+async function bookAppointmentSlot(barber, startDate, customer) {
+  const existing = await Appointment.findOne({ barber, start: startDate });
+
+  if (existing) {
+    if (existing.customer) {
+      return null;
+    }
+
+    return Appointment.findOneAndUpdate(
+      { _id: existing._id, customer: null },
+      { customer },
+      { new: true }
+    );
+  }
+
+  const endDate = new Date(startDate);
+  endDate.setMinutes(endDate.getMinutes() + 30);
+
+  try {
+    return await Appointment.create({
+      barber,
+      start: startDate,
+      end: endDate,
+      customer
+    });
+  } catch (err) {
+    if (err && err.code === 11000) {
+      return null;
+    }
+
+    throw err;
+  }
 }
 
 function toPublicAppointment(appointment) {
@@ -333,11 +364,7 @@ app.post('/api/book', async (req, res) => {
   try {
     await ensureFutureAppointments();
 
-    const appointment = await Appointment.findOneAndUpdate(
-      { barber, start: startDate, customer: null },
-      { customer },
-      { new: true }
-    );
+    const appointment = await bookAppointmentSlot(barber, startDate, customer);
 
     if (appointment) {
       broadcastCalendarChange('booked');

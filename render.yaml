@@ -8,6 +8,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: TZ
+        value: Europe/Tirane
       - key: MONGODB_URI
         sync: false
       - key: ADMIN_PASSWORD

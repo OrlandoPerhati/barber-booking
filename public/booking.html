@@ -103,6 +103,79 @@
     .mobile-controls {
       display: none;
     }
+    .custom-booking {
+      max-width: 980px;
+      margin: 0 auto 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(56, 42, 34, 0.82), var(--panel));
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+    }
+    .custom-booking-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .custom-booking-header p {
+      margin: 6px 0 0;
+      color: var(--muted-ink);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .custom-booking-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.3fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .custom-field {
+      display: grid;
+      gap: 6px;
+    }
+    .custom-field label {
+      color: var(--muted-ink);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .custom-field input,
+    .custom-field select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 249, 241, 0.1);
+      color: var(--ink);
+      font: inherit;
+      box-sizing: border-box;
+    }
+    .custom-field select option {
+      color: #1e1714;
+    }
+    .custom-booking button {
+      min-height: 44px;
+      margin: 0;
+      padding: 0 18px;
+      white-space: nowrap;
+    }
+    .custom-feedback {
+      min-height: 20px;
+      margin: 12px 0 0;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .custom-feedback.success {
+      color: #9ad69f;
+    }
+    .custom-feedback.error {
+      color: #ffaaa3;
+    }
     .segmented-control,
     .day-strip {
       display: flex;
@@ -298,6 +371,12 @@
       .barber-container {
         flex: 1 1 100%;
       }
+      .custom-booking-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .custom-booking button {
+        grid-column: 1 / -1;
+      }
     }
     @media (max-width: 700px) {
       body {
@@ -313,6 +392,20 @@
         gap: 10px;
         margin: 0 auto 12px;
         max-width: 520px;
+      }
+      .custom-booking {
+        margin-bottom: 12px;
+        padding: 14px;
+        border-radius: 16px;
+      }
+      .custom-booking-header {
+        display: block;
+      }
+      .custom-booking-form {
+        grid-template-columns: 1fr;
+      }
+      .custom-booking button {
+        width: 100%;
       }
       .segmented-control {
         display: grid;
@@ -386,6 +479,37 @@
     <div class="segmented-control" id="barber-tabs"></div>
     <div class="day-strip" id="day-tabs"></div>
   </div>
+  <section class="custom-booking" aria-labelledby="custom-booking-title">
+    <div class="custom-booking-header">
+      <div>
+        <h2 id="custom-booking-title" data-i18n="customTitle">Rezervo me datë dhe orë</h2>
+        <p data-i18n="customIntro">Zgjidh berberin, datën dhe orarin. Nëse orari është i zënë, rezervimi nuk kryhet.</p>
+      </div>
+    </div>
+    <form class="custom-booking-form" id="custom-booking-form">
+      <div class="custom-field">
+        <label for="custom-barber" data-i18n="customBarber">Berberi</label>
+        <select id="custom-barber" required>
+          <option value="deni">Deni</option>
+          <option value="cerri">Cerri</option>
+        </select>
+      </div>
+      <div class="custom-field">
+        <label for="custom-date" data-i18n="customDate">Data</label>
+        <input type="date" id="custom-date" required />
+      </div>
+      <div class="custom-field">
+        <label for="custom-time" data-i18n="customTime">Ora</label>
+        <select id="custom-time" required></select>
+      </div>
+      <div class="custom-field">
+        <label for="custom-name" data-i18n="customName">Emri</label>
+        <input type="text" id="custom-name" data-i18n-placeholder="namePlaceholder" placeholder="Shkruaj emrin" required />
+      </div>
+      <button type="submit" data-i18n="customSubmit">Kontrollo dhe rezervo</button>
+    </form>
+    <p class="custom-feedback" id="custom-booking-feedback" aria-live="polite"></p>
+  </section>
   <div class="container">
     <div class="barber-container" id="deni-container">
       <h2 data-i18n="bookDeni">Rezervo me Denin</h2>
@@ -441,7 +565,18 @@
         noSlotTitle: 'Nuk ka orar të disponueshëm',
         nameRequired: 'Ju lutem shkruani emrin.',
         booked: 'Takimi u rezervua!',
-        bookingFailed: 'Rezervimi dështoi.'
+        bookingFailed: 'Rezervimi dështoi.',
+        customTitle: 'Rezervo me datë dhe orë',
+        customIntro: 'Zgjidh berberin, datën dhe orarin. Nëse orari është i zënë, rezervimi nuk kryhet.',
+        customBarber: 'Berberi',
+        customDate: 'Data',
+        customTime: 'Ora',
+        customName: 'Emri',
+        customSubmit: 'Kontrollo dhe rezervo',
+        customMissing: 'Plotëso datën, orën, berberin dhe emrin.',
+        customInvalid: 'Zgjidh një orar çdo 30 minuta brenda orarit të punës.',
+        customUnavailable: 'Rezervimi nuk është i disponueshëm. Zgjidh një datë ose orar tjetër.',
+        customSuccess: 'Takimi u rezervua me sukses!'
       },
       en: {
         documentTitle: 'Book an Appointment',
@@ -461,7 +596,18 @@
         noSlotTitle: 'No appointment slot available',
         nameRequired: 'Please enter your name.',
         booked: 'Appointment booked!',
-        bookingFailed: 'Booking failed.'
+        bookingFailed: 'Booking failed.',
+        customTitle: 'Book by date and time',
+        customIntro: 'Choose the barber, date, and time. If that time is taken, the booking will not go through.',
+        customBarber: 'Barber',
+        customDate: 'Date',
+        customTime: 'Time',
+        customName: 'Name',
+        customSubmit: 'Check and book',
+        customMissing: 'Please fill in the date, time, barber, and name.',
+        customInvalid: 'Choose a 30-minute time slot during business hours.',
+        customUnavailable: 'Booking not available. Choose a different date or time.',
+        customSuccess: 'Appointment booked successfully!'
       }
     };
 
@@ -673,7 +819,92 @@
     const modalInfo = document.getElementById('modal-info');
     const customerInput = document.getElementById('customer-name');
     const feedback = document.getElementById('booking-feedback');
+    const customForm = document.getElementById('custom-booking-form');
+    const customBarber = document.getElementById('custom-barber');
+    const customDate = document.getElementById('custom-date');
+    const customTime = document.getElementById('custom-time');
+    const customName = document.getElementById('custom-name');
+    const customFeedback = document.getElementById('custom-booking-feedback');
     let selectedSlot = null;
+
+    function toDateInputValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function buildTimeOptions() {
+      const options = [];
+      for (let hour = 9; hour < 21; hour++) {
+        for (const minute of [0, 30]) {
+          const label = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+          options.push(`<option value="${label}">${label}</option>`);
+        }
+      }
+      customTime.innerHTML = options.join('');
+    }
+
+    function setCustomFeedback(message, type) {
+      customFeedback.textContent = message;
+      customFeedback.classList.toggle('success', type === 'success');
+      customFeedback.classList.toggle('error', type === 'error');
+    }
+
+    function getCustomStartISO() {
+      if (!customDate.value || !customTime.value) return null;
+      const start = new Date(`${customDate.value}T${customTime.value}:00`);
+      return Number.isNaN(start.getTime()) ? null : start.toISOString();
+    }
+
+    function isCustomSlotValid() {
+      const start = new Date(`${customDate.value}T${customTime.value}:00`);
+      const hour = start.getHours();
+      const minute = start.getMinutes();
+      return (
+        !Number.isNaN(start.getTime()) &&
+        start >= new Date() &&
+        hour >= 9 &&
+        hour < 21 &&
+        [0, 30].includes(minute) &&
+        start.getSeconds() === 0 &&
+        start.getMilliseconds() === 0
+      );
+    }
+
+    async function bookCustomAppointment() {
+      const name = customName.value.trim();
+      const start = getCustomStartISO();
+
+      if (!customBarber.value || !start || !name) {
+        setCustomFeedback(t('customMissing'), 'error');
+        return;
+      }
+
+      if (!isCustomSlotValid()) {
+        setCustomFeedback(t('customInvalid'), 'error');
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/api/book`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          barber: customBarber.value,
+          start,
+          customer: name
+        })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setCustomFeedback(t('customSuccess'), 'success');
+        customName.value = '';
+        renderCalendars();
+      } else {
+        setCustomFeedback(t('customUnavailable'), 'error');
+      }
+    }
 
     function openModal(barber, startISO) {
       selectedSlot = { barber, start: startISO };
@@ -759,12 +990,19 @@
       renderCalendars();
     });
 
+    customForm.addEventListener('submit', e => {
+      e.preventDefault();
+      bookCustomAppointment();
+    });
+
     document.querySelector('.language-switch').addEventListener('click', e => {
       const language = e.target.closest('[data-lang-option]')?.dataset.langOption;
       if (language) setLanguage(language);
     });
 
     mobileQuery.addEventListener('change', renderCalendars);
+    buildTimeOptions();
+    customDate.min = toDateInputValue(new Date());
     applyLanguage();
     renderCalendars();
     connectLiveUpdates();

@@ -305,13 +305,14 @@ app.post('/api/admin/login', (req, res) => {
   const secure = process.env.NODE_ENV === 'production' || req.secure ? '; Secure' : '';
   res.setHeader(
     'Set-Cookie',
-    `${ADMIN_COOKIE}=${encodeURIComponent(createAdminToken())}; HttpOnly; SameSite=Lax; Path=/; Max-Age=86400${secure}`
+    `${ADMIN_COOKIE}=${encodeURIComponent(createAdminToken())}; HttpOnly; SameSite=Lax; Path=/${secure}`
   );
   res.json({ success: true });
 });
 
 app.post('/api/admin/logout', (req, res) => {
-  res.setHeader('Set-Cookie', `${ADMIN_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`);
+  const secure = process.env.NODE_ENV === 'production' || req.secure ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `${ADMIN_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`);
   res.json({ success: true });
 });
 

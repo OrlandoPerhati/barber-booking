@@ -60,6 +60,83 @@
     .mobile-controls {
       display: none;
     }
+    .manual-booking {
+      max-width: 980px;
+      margin: 0 auto 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(17, 18, 18, 0.82), var(--panel));
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    .manual-booking-header {
+      margin-bottom: 14px;
+    }
+    .manual-booking-header p {
+      margin: 6px 0 0;
+      color: var(--muted-ink);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .manual-booking-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.3fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .manual-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+    .manual-field label {
+      color: var(--muted-ink);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .manual-field input,
+    .manual-field select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(246, 239, 225, 0.065);
+      color: var(--ink);
+      font: inherit;
+      box-sizing: border-box;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .manual-field input[type="date"] {
+      display: block;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .manual-field select option {
+      color: #101010;
+    }
+    .manual-booking button {
+      min-height: 44px;
+      margin: 0;
+      padding: 0 18px;
+      white-space: nowrap;
+    }
+    .manual-feedback {
+      min-height: 20px;
+      margin: 12px 0 0;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .manual-feedback.success {
+      color: #a9d8ad;
+    }
+    .manual-feedback.error {
+      color: #ffb2a8;
+    }
     .segmented-control,
     .day-strip {
       display: flex;
@@ -309,6 +386,12 @@
       .barber-container {
         flex: 1 1 100%;
       }
+      .manual-booking-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .manual-booking button {
+        grid-column: 1 / -1;
+      }
     }
     @media (max-width: 700px) {
       body {
@@ -321,6 +404,17 @@
       }
       .admin-actions {
         margin-bottom: 10px;
+      }
+      .manual-booking {
+        margin-bottom: 12px;
+        padding: 14px;
+      }
+      .manual-booking-form {
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .manual-booking button {
+        width: 100%;
       }
       .mobile-controls {
         display: grid;
@@ -396,6 +490,35 @@
       <button type="button" data-lang-option="en">EN</button>
     </div>
   </div>
+  <section class="manual-booking" aria-labelledby="manual-booking-title">
+    <div class="manual-booking-header">
+      <h2 id="manual-booking-title" data-i18n="manualTitle">Shto takim manualisht</h2>
+      <p data-i18n="manualIntro">Zgjidh berberin, datën, orën dhe emrin e klientit. Nëse orari është i zënë, takimi nuk shtohet.</p>
+    </div>
+    <form class="manual-booking-form" id="manual-booking-form">
+      <div class="manual-field">
+        <label for="manual-barber" data-i18n="manualBarber">Berberi</label>
+        <select id="manual-barber" required>
+          <option value="deni">Deni</option>
+          <option value="cerri">Cerri</option>
+        </select>
+      </div>
+      <div class="manual-field">
+        <label for="manual-date" data-i18n="manualDate">Data</label>
+        <input type="date" id="manual-date" required />
+      </div>
+      <div class="manual-field">
+        <label for="manual-time" data-i18n="manualTime">Ora</label>
+        <select id="manual-time" required></select>
+      </div>
+      <div class="manual-field">
+        <label for="manual-name" data-i18n="manualName">Klienti</label>
+        <input type="text" id="manual-name" data-i18n-placeholder="customerPlaceholder" placeholder="Shkruaj emrin e klientit" required />
+      </div>
+      <button type="submit" data-i18n="manualSubmit">Shto takimin</button>
+    </form>
+    <p class="manual-feedback" id="manual-booking-feedback" aria-live="polite"></p>
+  </section>
   <div class="mobile-controls" aria-label="Schedule filters">
     <div class="segmented-control" id="barber-tabs"></div>
     <div class="day-strip" id="day-tabs"></div>
@@ -467,7 +590,17 @@
         cancelling: 'Duke anuluar...',
         cancelled: 'Rezervimi u anulua!',
         cancellationFailed: 'Anulimi dështoi',
-        cancellationError: 'Gabim gjatë anulimit'
+        cancellationError: 'Gabim gjatë anulimit',
+        manualTitle: 'Shto takim manualisht',
+        manualIntro: 'Zgjidh berberin, datën, orën dhe emrin e klientit. Nëse orari është i zënë, takimi nuk shtohet.',
+        manualBarber: 'Berberi',
+        manualDate: 'Data',
+        manualTime: 'Ora',
+        manualName: 'Klienti',
+        manualSubmit: 'Shto takimin',
+        manualMissing: 'Plotëso datën, orën, berberin dhe emrin e klientit.',
+        manualUnavailable: 'Takimi nuk është i disponueshëm. Zgjidh një datë ose orar tjetër.',
+        manualSuccess: 'Takimi u shtua me sukses!'
       },
       en: {
         documentTitle: 'Admin - Barber Appointments',
@@ -498,7 +631,17 @@
         cancelling: 'Cancelling...',
         cancelled: 'Booking cancelled!',
         cancellationFailed: 'Cancellation failed',
-        cancellationError: 'Error cancelling appointment'
+        cancellationError: 'Error cancelling appointment',
+        manualTitle: 'Add appointment manually',
+        manualIntro: 'Choose the barber, date, time, and customer name. If that time is taken, the appointment will not be added.',
+        manualBarber: 'Barber',
+        manualDate: 'Date',
+        manualTime: 'Time',
+        manualName: 'Customer',
+        manualSubmit: 'Add appointment',
+        manualMissing: 'Please fill in the date, time, barber, and customer name.',
+        manualUnavailable: 'Appointment unavailable. Choose a different date or time.',
+        manualSuccess: 'Appointment added successfully!'
       }
     };
 
@@ -572,6 +715,13 @@
 
     function formatTime(date) {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function toDateInputValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
 
     function getVisibleDays() {
@@ -702,12 +852,95 @@
     const btnCancelBooking = document.getElementById('modal-cancel-btn');
     const btnClose = document.getElementById('modal-close-btn');
     const btnLogout = document.getElementById('logout-btn');
+    const manualForm = document.getElementById('manual-booking-form');
+    const manualBarber = document.getElementById('manual-barber');
+    const manualDate = document.getElementById('manual-date');
+    const manualTime = document.getElementById('manual-time');
+    const manualName = document.getElementById('manual-name');
+    const manualFeedback = document.getElementById('manual-booking-feedback');
 
     let currentCell = null;
     let currentAppointmentId = null;
     let currentBarber = null;
     let currentStart = null;
     let currentIsReserved = false;
+
+    function buildManualTimeOptions() {
+      const options = [];
+      for (let hour = 9; hour < 21; hour++) {
+        for (const minute of [0, 30]) {
+          const label = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+          options.push(`<option value="${label}">${label}</option>`);
+        }
+      }
+      manualTime.innerHTML = options.join('');
+    }
+
+    function setManualFeedback(message, type) {
+      manualFeedback.textContent = message;
+      manualFeedback.classList.toggle('success', type === 'success');
+      manualFeedback.classList.toggle('error', type === 'error');
+    }
+
+    function getManualStartISO() {
+      if (!manualDate.value || !manualTime.value) return null;
+      const start = new Date(`${manualDate.value}T${manualTime.value}:00`);
+      return Number.isNaN(start.getTime()) ? null : start.toISOString();
+    }
+
+    function isManualSlotValid() {
+      const start = new Date(`${manualDate.value}T${manualTime.value}:00`);
+      const hour = start.getHours();
+      const minute = start.getMinutes();
+      return (
+        !Number.isNaN(start.getTime()) &&
+        start >= new Date() &&
+        hour >= 9 &&
+        hour < 21 &&
+        [0, 30].includes(minute) &&
+        start.getSeconds() === 0 &&
+        start.getMilliseconds() === 0
+      );
+    }
+
+    async function bookManualAppointment() {
+      const customer = manualName.value.trim();
+      const start = getManualStartISO();
+
+      if (!manualBarber.value || !start || !customer) {
+        setManualFeedback(t('manualMissing'), 'error');
+        return;
+      }
+
+      if (!isManualSlotValid()) {
+        setManualFeedback(t('manualUnavailable'), 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/book`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            barber: manualBarber.value,
+            start,
+            customer
+          })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          setManualFeedback(t('manualSuccess'), 'success');
+          manualName.value = '';
+          await refreshCalendars();
+        } else {
+          setManualFeedback(t('manualUnavailable'), 'error');
+        }
+      } catch (err) {
+        setManualFeedback(t('bookingError'), 'error');
+        console.error(err);
+      }
+    }
 
     function openModal(cell) {
       currentCell = cell;
@@ -866,9 +1099,16 @@
       if (language) setLanguage(language);
     });
 
+    manualForm.addEventListener('submit', e => {
+      e.preventDefault();
+      bookManualAppointment();
+    });
+
     mobileQuery.addEventListener('change', refreshCalendars);
 
     // Initial load
+    buildManualTimeOptions();
+    manualDate.min = toDateInputValue(new Date());
     applyLanguage();
     refreshCalendars();
     connectLiveUpdates();

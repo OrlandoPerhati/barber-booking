@@ -135,6 +135,7 @@
     .custom-field {
       display: grid;
       gap: 6px;
+      min-width: 0;
     }
     .custom-field label {
       color: var(--muted-ink);
@@ -154,6 +155,13 @@
       color: var(--ink);
       font: inherit;
       box-sizing: border-box;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .custom-field input[type="date"] {
+      display: block;
+      -webkit-appearance: none;
+      appearance: none;
     }
     .custom-field select option {
       color: #1e1714;
@@ -403,6 +411,7 @@
       }
       .custom-booking-form {
         grid-template-columns: 1fr;
+        width: 100%;
       }
       .custom-booking button {
         width: 100%;

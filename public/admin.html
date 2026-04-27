@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Barber Appointments</title>
   <style>
     :root {
@@ -55,6 +56,30 @@
       justify-content: center;
       gap: 18px;
       flex-wrap: nowrap;
+    }
+    .mobile-controls {
+      display: none;
+    }
+    .segmented-control,
+    .day-strip {
+      display: flex;
+      gap: 8px;
+    }
+    .segmented-control button,
+    .day-strip button {
+      min-height: 44px;
+      margin: 0;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 249, 241, 0.08);
+      color: var(--ink);
+      box-shadow: none;
+      font-size: 14px;
+    }
+    .segmented-control button.active,
+    .day-strip button.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #1e1714;
     }
     .barber-container {
       background: linear-gradient(180deg, rgba(56, 42, 34, 0.82), var(--panel));
@@ -252,12 +277,91 @@
         flex: 1 1 100%;
       }
     }
+    @media (max-width: 700px) {
+      body {
+        padding: 14px 10px 18px;
+        background-attachment: scroll;
+      }
+      h1 {
+        margin-bottom: 12px;
+        font-size: 1.2rem;
+      }
+      .admin-actions {
+        margin-bottom: 10px;
+      }
+      .mobile-controls {
+        display: grid;
+        gap: 10px;
+        margin: 0 auto 12px;
+        max-width: 520px;
+      }
+      .segmented-control {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .day-strip {
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: thin;
+      }
+      .day-strip button {
+        flex: 0 0 76px;
+        display: grid;
+        gap: 2px;
+        line-height: 1.15;
+      }
+      .day-strip small {
+        color: inherit;
+        font-size: 11px;
+        opacity: 0.82;
+      }
+      .container {
+        display: block;
+      }
+      .barber-container {
+        display: none;
+        padding: 12px;
+        border-radius: 16px;
+      }
+      .barber-container.active {
+        display: flex;
+      }
+      h2 {
+        font-size: 1.05rem;
+      }
+      table {
+        border-spacing: 7px;
+        font-size: 14px;
+      }
+      th, td {
+        height: 52px;
+        border-radius: 14px;
+        font-size: 13px;
+      }
+      th.time-col,
+      td.time-col {
+        width: 72px;
+        font-size: 12px;
+      }
+      #modal-content {
+        width: min(92vw, 360px);
+        padding: 22px;
+        border-radius: 18px;
+      }
+      #modal-buttons {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>Admin - Manage Appointments</h1>
   <div class="admin-actions">
     <button id="logout-btn" type="button">Log Out</button>
+  </div>
+  <div class="mobile-controls" aria-label="Schedule filters">
+    <div class="segmented-control" id="barber-tabs"></div>
+    <div class="day-strip" id="day-tabs"></div>
   </div>
   <div class="container">
     <div class="barber-container" id="deni-container">
@@ -289,6 +393,9 @@
    const barberNames = ['deni', 'cerri'];
     const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
+    const mobileQuery = window.matchMedia('(max-width: 700px)');
+    let selectedBarber = barberNames[0];
+    let selectedDayIndex = 0;
 
     function escapeHtml(value) {
       return String(value)
@@ -309,6 +416,41 @@
         days.push(d);
       }
       return days;
+    }
+
+    function formatBarberName(barber) {
+      return barber.charAt(0).toUpperCase() + barber.slice(1);
+    }
+
+    function getVisibleDays() {
+      const days = getNext7Days();
+      return mobileQuery.matches ? [days[selectedDayIndex]] : days;
+    }
+
+    function updateVisibleContainers() {
+      barberNames.forEach(barber => {
+        const container = document.getElementById(`${barber}-container`);
+        container.classList.toggle('active', !mobileQuery.matches || barber === selectedBarber);
+      });
+    }
+
+    function renderMobileControls() {
+      const barberTabs = document.getElementById('barber-tabs');
+      const dayTabs = document.getElementById('day-tabs');
+      const days = getNext7Days();
+
+      barberTabs.innerHTML = barberNames.map(barber => `
+        <button type="button" class="${barber === selectedBarber ? 'active' : ''}" data-barber-tab="${barber}">
+          ${formatBarberName(barber)}
+        </button>
+      `).join('');
+
+      dayTabs.innerHTML = days.map((day, index) => `
+        <button type="button" class="${index === selectedDayIndex ? 'active' : ''}" data-day-tab="${index}">
+          ${DAYS[day.getDay()]}
+          <small>${day.getMonth() + 1}/${day.getDate()}</small>
+        </button>
+      `).join('');
     }
 
     async function fetchAppointments(barber) {
@@ -390,7 +532,7 @@
     async function renderCalendar(barber) {
       const calendar = document.getElementById(`${barber}-calendar`);
       const appointments = await fetchAppointments(barber);
-      const days = getNext7Days();
+      const days = getVisibleDays();
 
       const thead = createTableHeader(days);
       const tbody = createTableBody(appointments, days, barber);
@@ -525,9 +667,10 @@
     };
 
     async function refreshCalendars() {
-      for (const barber of barberNames) {
-        await renderCalendar(barber);
-      }
+      renderMobileControls();
+      updateVisibleContainers();
+      const visibleBarbers = mobileQuery.matches ? [selectedBarber] : barberNames;
+      await Promise.all(visibleBarbers.map(barber => renderCalendar(barber)));
       attachCellListeners();
     }
 
@@ -537,6 +680,22 @@
         cell.onclick = () => openModal(cell);
       });
     }
+
+    document.getElementById('barber-tabs').addEventListener('click', e => {
+      const barber = e.target.closest('[data-barber-tab]')?.dataset.barberTab;
+      if (!barber) return;
+      selectedBarber = barber;
+      refreshCalendars();
+    });
+
+    document.getElementById('day-tabs').addEventListener('click', e => {
+      const index = e.target.closest('[data-day-tab]')?.dataset.dayTab;
+      if (index === undefined) return;
+      selectedDayIndex = Number(index);
+      refreshCalendars();
+    });
+
+    mobileQuery.addEventListener('change', refreshCalendars);
 
     // Initial load
     refreshCalendars();

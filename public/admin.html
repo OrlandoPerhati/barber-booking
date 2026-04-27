@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="sq">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Barber Appointments</title>
+  <title>Admin - Takimet</title>
   <style>
     :root {
       --ink: #f7efe6;
@@ -168,7 +168,7 @@
       background: linear-gradient(180deg, #ba857b, #9a695f 62%, #85574f);
       filter: brightness(1.02);
     }
-    td[title="No appointment slot available"] {
+    td.no-slot {
       background: linear-gradient(180deg, rgba(255, 248, 240, 0.05), rgba(255, 248, 240, 0.02));
       border-color: rgba(214, 183, 144, 0.08);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -262,6 +262,8 @@
       display: flex;
       justify-content: center;
       margin-bottom: 14px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
     #logout-btn {
       width: auto;
@@ -272,6 +274,30 @@
       background: linear-gradient(135deg, #9b665a, #78463f);
       color: #fff5f2;
       font-size: 14px;
+    }
+    .language-switch {
+      display: inline-flex;
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(24, 18, 15, 0.72);
+    }
+    .language-switch button {
+      width: auto;
+      min-width: 42px;
+      min-height: 30px;
+      margin: 0;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink);
+      box-shadow: none;
+      font-size: 13px;
+    }
+    .language-switch button.active {
+      color: #1e1714;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
     }
     @media (max-width: 1100px) {
       body {
@@ -362,9 +388,13 @@
   </style>
 </head>
 <body>
-  <h1>Admin - Manage Appointments</h1>
+  <h1 data-i18n="pageTitle">Admin - Menaxho takimet</h1>
   <div class="admin-actions">
-    <button id="logout-btn" type="button">Log Out</button>
+    <button id="logout-btn" type="button" data-i18n="logout">Dil</button>
+    <div class="language-switch" aria-label="Language">
+      <button type="button" data-lang-option="sq">AL</button>
+      <button type="button" data-lang-option="en">EN</button>
+    </div>
   </div>
   <div class="mobile-controls" aria-label="Schedule filters">
     <div class="segmented-control" id="barber-tabs"></div>
@@ -372,11 +402,11 @@
   </div>
   <div class="container">
     <div class="barber-container" id="deni-container">
-      <h2>Deni's Schedule</h2>
+      <h2 data-i18n="deniSchedule">Orari i Denit</h2>
       <table id="deni-calendar"></table>
     </div>
     <div class="barber-container" id="cerri-container">
-      <h2>Cerri's Schedule</h2>
+      <h2 data-i18n="cerriSchedule">Orari i Cerrit</h2>
       <table id="cerri-calendar"></table>
     </div>
   </div>
@@ -386,11 +416,11 @@
     <div id="modal-content">
       <h3 id="modal-title"></h3>
       <p id="modal-info"></p>
-      <input type="text" id="customer-name" placeholder="Enter customer name" />
+      <input type="text" id="customer-name" data-i18n-placeholder="customerPlaceholder" placeholder="Shkruaj emrin e klientit" />
       <div id="modal-buttons">
-        <button id="modal-book-btn">Book</button>
-        <button id="modal-cancel-btn">Cancel Booking</button>
-        <button id="modal-close-btn">Close</button>
+        <button id="modal-book-btn" data-i18n="book">Rezervo</button>
+        <button id="modal-cancel-btn" data-i18n="cancelBooking">Anulo rezervimin</button>
+        <button id="modal-close-btn" data-i18n="close">Mbyll</button>
       </div>
       <p id="feedback"></p>
     </div>
@@ -404,6 +434,102 @@
     let selectedBarber = barberNames[0];
     let selectedDayIndex = 0;
     let liveUpdateTimer = null;
+    const translations = {
+      sq: {
+        documentTitle: 'Admin - Takimet',
+        pageTitle: 'Admin - Menaxho takimet',
+        logout: 'Dil',
+        deniSchedule: 'Orari i Denit',
+        cerriSchedule: 'Orari i Cerrit',
+        customerPlaceholder: 'Shkruaj emrin e klientit',
+        book: 'Rezervo',
+        cancelBooking: 'Anulo rezervimin',
+        close: 'Mbyll',
+        time: 'Ora',
+        passed: 'Kaluar',
+        passedTitle: 'Ky orar ka kaluar',
+        reservedBy: 'Rezervuar nga',
+        availableTitle: 'Orar i lirë',
+        noSlotTitle: 'Nuk ka orar të disponueshëm',
+        cancelTitle: 'Të anulohet rezervimi?',
+        reservedInfo: 'Takimi është rezervuar nga',
+        bookTitle: 'Rezervo takim',
+        barber: 'Berberi',
+        timeLabel: 'Ora',
+        nameRequired: 'Ju lutem shkruani emrin e klientit.',
+        booking: 'Duke rezervuar...',
+        booked: 'Takimi u rezervua me sukses!',
+        bookingFailed: 'Rezervimi dështoi',
+        bookingError: 'Gabim gjatë rezervimit',
+        cancelling: 'Duke anuluar...',
+        cancelled: 'Rezervimi u anulua!',
+        cancellationFailed: 'Anulimi dështoi',
+        cancellationError: 'Gabim gjatë anulimit'
+      },
+      en: {
+        documentTitle: 'Admin - Barber Appointments',
+        pageTitle: 'Admin - Manage Appointments',
+        logout: 'Log Out',
+        deniSchedule: "Deni's Schedule",
+        cerriSchedule: "Cerri's Schedule",
+        customerPlaceholder: 'Enter customer name',
+        book: 'Book',
+        cancelBooking: 'Cancel Booking',
+        close: 'Close',
+        time: 'Time',
+        passed: 'Passed',
+        passedTitle: 'This time has already passed',
+        reservedBy: 'Reserved by',
+        availableTitle: 'Available slot',
+        noSlotTitle: 'No appointment slot available',
+        cancelTitle: 'Cancel Booking?',
+        reservedInfo: 'Appointment reserved by',
+        bookTitle: 'Book Appointment',
+        barber: 'Barber',
+        timeLabel: 'Time',
+        nameRequired: 'Please enter customer name.',
+        booking: 'Booking...',
+        booked: 'Appointment booked successfully!',
+        bookingFailed: 'Booking failed',
+        bookingError: 'Error booking appointment',
+        cancelling: 'Cancelling...',
+        cancelled: 'Booking cancelled!',
+        cancellationFailed: 'Cancellation failed',
+        cancellationError: 'Error cancelling appointment'
+      }
+    };
+
+    function getLanguage() {
+      return localStorage.getItem('haircuttime_language') || 'sq';
+    }
+
+    function t(key) {
+      return translations[getLanguage()][key];
+    }
+
+    function applyLanguage() {
+      const language = getLanguage();
+      document.documentElement.lang = language;
+      document.title = translations[language].documentTitle;
+
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        element.textContent = translations[language][element.dataset.i18n];
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        element.placeholder = translations[language][element.dataset.i18nPlaceholder];
+      });
+
+      document.querySelectorAll('[data-lang-option]').forEach(button => {
+        button.classList.toggle('active', button.dataset.langOption === language);
+      });
+    }
+
+    function setLanguage(language) {
+      localStorage.setItem('haircuttime_language', language);
+      applyLanguage();
+      refreshCalendars();
+    }
 
     function escapeHtml(value) {
       return String(value)
@@ -483,7 +609,7 @@
     }
 
     function createTableHeader(days) {
-      let thead = '<tr><th class="time-col">Time</th>';
+      let thead = `<tr><th class="time-col">${t('time')}</th>`;
       for(let day of days) {
         thead += `<th>${DAYS[day.getDay()]}<br>${formatDate(day)}</th>`;
       }
@@ -512,7 +638,7 @@
       const isToday = slotStart.toDateString() === now.toDateString();
 
       if (isToday && slotStart < now) {
-        tbody += '<td class="past" title="This time has already passed">Passed</td>';
+        tbody += `<td class="past" title="${t('passedTitle')}">${t('passed')}</td>`;
         continue;
       }
 
@@ -528,15 +654,15 @@
         );
       });
       if (appointment && appointment.customer) {
-  tbody += `<td class="reserved" data-id="${escapeHtml(appointment._id)}" title="Reserved by ${escapeHtml(appointment.customer)}">
+  tbody += `<td class="reserved" data-id="${escapeHtml(appointment._id)}" title="${t('reservedBy')} ${escapeHtml(appointment.customer)}">
               ${escapeHtml(appointment.customer)}
             </td>`;
 } else if (appointment) {
-        tbody += `<td class="available" data-barber="${escapeHtml(barber)}" data-start="${escapeHtml(slotStart.toISOString())}" title="Available slot">
+        tbody += `<td class="available" data-barber="${escapeHtml(barber)}" data-start="${escapeHtml(slotStart.toISOString())}" title="${t('availableTitle')}">
                     ${timeLabel}
                   </td>`;
       } else {
-        tbody += `<td title="No appointment slot available"></td>`;
+        tbody += `<td class="no-slot" title="${t('noSlotTitle')}"></td>`;
       }
       
     }
@@ -584,15 +710,15 @@
       currentIsReserved = cell.classList.contains('reserved');
 
       if (currentIsReserved) {
-        modalTitle.textContent = 'Cancel Booking?';
-        modalInfo.textContent = `Appointment reserved by: ${cell.textContent}`;
+        modalTitle.textContent = t('cancelTitle');
+        modalInfo.textContent = `${t('reservedInfo')}: ${cell.textContent}`;
         customerInput.style.display = 'none';
         btnBook.style.display = 'none';
         btnCancelBooking.style.display = 'inline-block';
       } else {
-        modalTitle.textContent = 'Book Appointment';
+        modalTitle.textContent = t('bookTitle');
         const startDate = new Date(currentStart);
-        modalInfo.textContent = `Barber: ${formatBarberName(currentBarber)}\nTime: ${formatDate(startDate)} ${formatTime(startDate)}`;
+        modalInfo.textContent = `${t('barber')}: ${formatBarberName(currentBarber)}\n${t('timeLabel')}: ${formatDate(startDate)} ${formatTime(startDate)}`;
         customerInput.style.display = 'block';
         customerInput.value = '';
         btnBook.style.display = 'inline-block';
@@ -626,10 +752,10 @@
     btnBook.onclick = async () => {
       const customer = customerInput.value.trim();
       if (!customer) {
-        feedback.textContent = 'Please enter customer name.';
+        feedback.textContent = t('nameRequired');
         return;
       }
-      feedback.textContent = 'Booking...';
+      feedback.textContent = t('booking');
 
       try {
         const res = await fetch(`${API_BASE}/api/book`, {
@@ -645,16 +771,16 @@
         const data = await res.json();
         if (res.ok && data.success) {
           feedback.style.color = '#22c55e';
-          feedback.textContent = 'Appointment booked successfully!';
+          feedback.textContent = t('booked');
           await refreshCalendars();
           setTimeout(closeModal, 1500);
         } else {
           feedback.style.color = '#dc2626';
-          feedback.textContent = data.message || 'Booking failed';
+          feedback.textContent = getLanguage() === 'en' ? (data.message || t('bookingFailed')) : t('bookingFailed');
         }
       } catch (e) {
         feedback.style.color = '#dc2626';
-        feedback.textContent = 'Error booking appointment';
+        feedback.textContent = t('bookingError');
         console.error(e);
       }
     };
@@ -662,7 +788,7 @@
     // Cancel appointment handler
     btnCancelBooking.onclick = async () => {
       if (!currentAppointmentId) return;
-      feedback.textContent = 'Cancelling...';
+      feedback.textContent = t('cancelling');
 
       try {
         const res = await fetch(`${API_BASE}/api/cancel/${currentAppointmentId}`, {
@@ -671,16 +797,16 @@
         const data = await res.json();
         if (res.ok && data.success) {
           feedback.style.color = '#22c55e';
-          feedback.textContent = 'Booking cancelled!';
+          feedback.textContent = t('cancelled');
           await refreshCalendars();
           setTimeout(closeModal, 1500);
         } else {
           feedback.style.color = '#dc2626';
-          feedback.textContent = data.message || 'Cancellation failed';
+          feedback.textContent = getLanguage() === 'en' ? (data.message || t('cancellationFailed')) : t('cancellationFailed');
         }
       } catch (e) {
         feedback.style.color = '#dc2626';
-        feedback.textContent = 'Error cancelling appointment';
+        feedback.textContent = t('cancellationError');
         console.error(e);
       }
     };
@@ -728,9 +854,15 @@
       refreshCalendars();
     });
 
+    document.querySelector('.language-switch').addEventListener('click', e => {
+      const language = e.target.closest('[data-lang-option]')?.dataset.langOption;
+      if (language) setLanguage(language);
+    });
+
     mobileQuery.addEventListener('change', refreshCalendars);
 
     // Initial load
+    applyLanguage();
     refreshCalendars();
     connectLiveUpdates();
 

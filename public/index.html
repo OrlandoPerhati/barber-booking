@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sq">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -46,6 +46,32 @@
       grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
       gap: 18px;
       align-items: stretch;
+    }
+    .language-switch {
+      justify-self: end;
+      display: inline-flex;
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(24, 18, 15, 0.72);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    .language-switch button {
+      min-width: 44px;
+      min-height: 34px;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--ink);
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .language-switch button.active {
+      color: #1e1714;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
     }
 
     .intro,
@@ -201,6 +227,11 @@
         min-height: calc(100vh - 24px);
       }
 
+      .language-switch {
+        justify-self: stretch;
+        justify-content: center;
+      }
+
       .hero {
         grid-template-columns: 1fr;
       }
@@ -222,33 +253,37 @@
 </head>
 <body>
   <main>
+    <div class="language-switch" aria-label="Language">
+      <button type="button" data-lang-option="sq">AL</button>
+      <button type="button" data-lang-option="en">EN</button>
+    </div>
     <section class="hero" aria-label="Haircut Time overview">
       <div class="intro">
         <div>
-          <p class="eyebrow">Barber appointments</p>
+          <p class="eyebrow" data-i18n="eyebrow">Rezervime berberi</p>
           <h1>Haircut Time</h1>
-          <p>Book a fresh cut with Deni or Cerri. Choose your barber, pick a time, and reserve your appointment online in a few taps.</p>
+          <p data-i18n="intro">Rezervo një prerje të re me Denin ose Cerrin. Zgjidh berberin, orarin, dhe rezervo takimin online me pak klikime.</p>
           <div class="actions">
-            <a class="button" href="/booking.html">Book an Appointment</a>
+            <a class="button" href="/booking.html" data-i18n="bookButton">Rezervo takim</a>
           </div>
         </div>
       </div>
 
       <aside class="info-panel" aria-label="Shop information">
         <div class="info-group">
-          <h2>Location</h2>
+          <h2 data-i18n="locationTitle">Vendndodhja</h2>
           <p>Rruga Azem Galica</p>
           <p class="muted">Tirana, Albania</p>
         </div>
 
         <div class="info-group">
-          <h2>Hours</h2>
-          <p>Open daily, 09:00 - 21:00</p>
-          <p class="muted">Appointments are available in 30-minute slots.</p>
+          <h2 data-i18n="hoursTitle">Orari</h2>
+          <p data-i18n="hoursText">Hapur çdo ditë, 09:00 - 21:00</p>
+          <p class="muted" data-i18n="slotsText">Takimet janë të disponueshme çdo 30 minuta.</p>
         </div>
 
         <div class="info-group">
-          <h2>Call a Barber</h2>
+          <h2 data-i18n="callTitle">Telefono berberin</h2>
           <div class="barber-list">
             <div class="barber-row">
               <span>Deni</span>
@@ -262,10 +297,63 @@
         </div>
 
         <div class="info-group">
-          <p class="status">Online booking available</p>
+          <p class="status" data-i18n="status">Rezervimi online është i disponueshëm</p>
         </div>
       </aside>
     </section>
   </main>
+  <script>
+    const translations = {
+      sq: {
+        title: 'Haircut Time',
+        eyebrow: 'Rezervime berberi',
+        intro: 'Rezervo një prerje të re me Denin ose Cerrin. Zgjidh berberin, orarin, dhe rezervo takimin online me pak klikime.',
+        bookButton: 'Rezervo takim',
+        locationTitle: 'Vendndodhja',
+        hoursTitle: 'Orari',
+        hoursText: 'Hapur çdo ditë, 09:00 - 21:00',
+        slotsText: 'Takimet janë të disponueshme çdo 30 minuta.',
+        callTitle: 'Telefono berberin',
+        status: 'Rezervimi online është i disponueshëm'
+      },
+      en: {
+        title: 'Haircut Time',
+        eyebrow: 'Barber appointments',
+        intro: 'Book a fresh cut with Deni or Cerri. Choose your barber, pick a time, and reserve your appointment online in a few taps.',
+        bookButton: 'Book an Appointment',
+        locationTitle: 'Location',
+        hoursTitle: 'Hours',
+        hoursText: 'Open daily, 09:00 - 21:00',
+        slotsText: 'Appointments are available in 30-minute slots.',
+        callTitle: 'Call a Barber',
+        status: 'Online booking available'
+      }
+    };
+
+    function getLanguage() {
+      return localStorage.getItem('haircuttime_language') || 'sq';
+    }
+
+    function setLanguage(language) {
+      localStorage.setItem('haircuttime_language', language);
+      document.documentElement.lang = language;
+      document.title = translations[language].title;
+
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        element.textContent = translations[language][element.dataset.i18n];
+      });
+
+      document.querySelectorAll('[data-lang-option]').forEach(button => {
+        button.classList.toggle('active', button.dataset.langOption === language);
+      });
+    }
+
+    document.querySelector('.language-switch').addEventListener('click', event => {
+      const language = event.target.closest('[data-lang-option]')?.dataset.langOption;
+      if (language) setLanguage(language);
+    });
+
+    setLanguage(getLanguage());
+  </script>
 </body>
 </html>

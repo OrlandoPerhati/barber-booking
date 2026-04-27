@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="sq">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Barber Appointments</title>
+  <title>Rezervo takim</title>
   <style>
     :root {
       --ink: #f7efe6;
@@ -52,8 +52,11 @@
     }
     .top-nav {
       display: flex;
+      gap: 10px;
       justify-content: center;
+      align-items: center;
       margin-bottom: 14px;
+      flex-wrap: wrap;
     }
     .top-nav a {
       min-height: 38px;
@@ -67,6 +70,29 @@
       text-decoration: none;
       font-size: 14px;
       font-weight: 700;
+    }
+    .language-switch {
+      display: inline-flex;
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(24, 18, 15, 0.72);
+    }
+    .language-switch button {
+      min-width: 42px;
+      min-height: 30px;
+      margin: 0;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink);
+      box-shadow: none;
+      font-size: 13px;
+    }
+    .language-switch button.active {
+      color: #1e1714;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
     }
     .container {
       display: flex;
@@ -181,7 +207,7 @@
       transform: translateY(-2px);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 14px 26px rgba(34, 54, 38, 0.28);
     }
-    td[title="No appointment slot available"] {
+    td.no-slot {
       background: linear-gradient(180deg, rgba(255, 248, 240, 0.05), rgba(255, 248, 240, 0.02));
       border-color: rgba(214, 183, 144, 0.08);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -348,9 +374,13 @@
   </style>
 </head>
 <body>
-  <h1>Book an Appointment</h1>
+  <h1 data-i18n="pageTitle">Rezervo takim</h1>
   <div class="top-nav">
-    <a href="/">Overview</a>
+    <a href="/" data-i18n="overview">Info</a>
+    <div class="language-switch" aria-label="Language">
+      <button type="button" data-lang-option="sq">AL</button>
+      <button type="button" data-lang-option="en">EN</button>
+    </div>
   </div>
   <div class="mobile-controls" aria-label="Booking filters">
     <div class="segmented-control" id="barber-tabs"></div>
@@ -358,11 +388,11 @@
   </div>
   <div class="container">
     <div class="barber-container" id="deni-container">
-      <h2>Book with Deni</h2>
+      <h2 data-i18n="bookDeni">Rezervo me Denin</h2>
       <table id="deni-calendar"></table>
     </div>
     <div class="barber-container" id="cerri-container">
-      <h2>Book with Cerri</h2>
+      <h2 data-i18n="bookCerri">Rezervo me Cerrin</h2>
       <table id="cerri-calendar"></table>
     </div>
   </div>
@@ -370,12 +400,12 @@
   <!-- Modal -->
   <div id="booking-modal">
     <div id="modal-content">
-      <h3>Book Appointment</h3>
+      <h3 data-i18n="modalTitle">Rezervo takim</h3>
       <p id="modal-info"></p>
-      <input type="text" id="customer-name" placeholder="Enter your name" />
+      <input type="text" id="customer-name" data-i18n-placeholder="namePlaceholder" placeholder="Shkruaj emrin" />
       <div id="modal-buttons">
-        <button id="confirm-booking">Confirm</button>
-        <button id="cancel-booking">Cancel</button>
+        <button id="confirm-booking" data-i18n="confirm">Konfirmo</button>
+        <button id="cancel-booking" data-i18n="cancel">Anulo</button>
       </div>
       <p id="booking-feedback"></p>
     </div>
@@ -389,6 +419,80 @@
     let selectedBarber = barberNames[0];
     let selectedDayIndex = 0;
     let liveUpdateTimer = null;
+    const translations = {
+      sq: {
+        documentTitle: 'Rezervo takim',
+        pageTitle: 'Rezervo takim',
+        overview: 'Info',
+        bookDeni: 'Rezervo me Denin',
+        bookCerri: 'Rezervo me Cerrin',
+        modalTitle: 'Rezervo takim',
+        namePlaceholder: 'Shkruaj emrin',
+        confirm: 'Konfirmo',
+        cancel: 'Anulo',
+        time: 'Ora',
+        passed: 'Kaluar',
+        passedTitle: 'Ky orar ka kaluar',
+        reservedTitle: 'Orar i rezervuar',
+        availableTitle: 'Orar i lirë',
+        noSlotTitle: 'Nuk ka orar të disponueshëm',
+        nameRequired: 'Ju lutem shkruani emrin.',
+        booked: 'Takimi u rezervua!',
+        bookingFailed: 'Rezervimi dështoi.'
+      },
+      en: {
+        documentTitle: 'Book an Appointment',
+        pageTitle: 'Book an Appointment',
+        overview: 'Overview',
+        bookDeni: 'Book with Deni',
+        bookCerri: 'Book with Cerri',
+        modalTitle: 'Book Appointment',
+        namePlaceholder: 'Enter your name',
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        time: 'Time',
+        passed: 'Passed',
+        passedTitle: 'This time has already passed',
+        reservedTitle: 'Reserved slot',
+        availableTitle: 'Available slot',
+        noSlotTitle: 'No appointment slot available',
+        nameRequired: 'Please enter your name.',
+        booked: 'Appointment booked!',
+        bookingFailed: 'Booking failed.'
+      }
+    };
+
+    function getLanguage() {
+      return localStorage.getItem('haircuttime_language') || 'sq';
+    }
+
+    function t(key) {
+      return translations[getLanguage()][key];
+    }
+
+    function applyLanguage() {
+      const language = getLanguage();
+      document.documentElement.lang = language;
+      document.title = translations[language].documentTitle;
+
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        element.textContent = translations[language][element.dataset.i18n];
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        element.placeholder = translations[language][element.dataset.i18nPlaceholder];
+      });
+
+      document.querySelectorAll('[data-lang-option]').forEach(button => {
+        button.classList.toggle('active', button.dataset.langOption === language);
+      });
+    }
+
+    function setLanguage(language) {
+      localStorage.setItem('haircuttime_language', language);
+      applyLanguage();
+      renderCalendars();
+    }
 
     function escapeHtml(value) {
       return String(value)
@@ -464,7 +568,7 @@
     }
 
     function createTableHeader(days) {
-      let thead = '<tr><th class="time-col">Time</th>';
+      let thead = `<tr><th class="time-col">${t('time')}</th>`;
       for(let day of days) {
         thead += `<th>${DAYS[day.getDay()]}<br>${formatDate(day)}</th>`;
       }
@@ -493,7 +597,7 @@
           const isToday = slotStart.toDateString() === now.toDateString();
 
           if (isToday && slotStart < now) {
-            tbody += '<td class="past" title="This time has already passed">Passed</td>';
+            tbody += `<td class="past" title="${t('passedTitle')}">${t('passed')}</td>`;
             continue;
           }
 
@@ -510,15 +614,15 @@
           });
 
           if (appointment && appointment.reserved) {
-            tbody += `<td class="reserved" title="Reserved slot">
+            tbody += `<td class="reserved" title="${t('reservedTitle')}">
                         ${timeLabel}
                       </td>`;
           } else if (appointment) {
-            tbody += `<td class="available" data-barber="${escapeHtml(barber)}" data-start="${escapeHtml(slotStart.toISOString())}" title="Available slot">
+            tbody += `<td class="available" data-barber="${escapeHtml(barber)}" data-start="${escapeHtml(slotStart.toISOString())}" title="${t('availableTitle')}">
                         ${timeLabel}
                       </td>`;
           } else {
-            tbody += `<td title="No appointment slot available"></td>`;
+            tbody += `<td class="no-slot" title="${t('noSlotTitle')}"></td>`;
           }
         }
         tbody += '</tr>';
@@ -594,7 +698,7 @@
       feedback.textContent = ''; // clear previous feedback
       const name = customerInput.value.trim();
       if(!name) {
-        feedback.textContent = 'Please enter your name.';
+        feedback.textContent = t('nameRequired');
         feedback.style.color = '#dc2626'; // red
         return;
       }
@@ -613,14 +717,14 @@
 
       if (res.ok && data.success) {
         feedback.style.color = '#22c55e'; // green
-        feedback.textContent = 'Appointment booked!';
+        feedback.textContent = t('booked');
         setTimeout(() => {
           closeModal();
           renderCalendars();
         }, 1500);
       } else {
         feedback.style.color = '#dc2626'; // red
-        feedback.textContent = data.message || 'Booking failed.';
+        feedback.textContent = getLanguage() === 'en' ? (data.message || t('bookingFailed')) : t('bookingFailed');
       }
     });
 
@@ -648,7 +752,13 @@
       renderCalendars();
     });
 
+    document.querySelector('.language-switch').addEventListener('click', e => {
+      const language = e.target.closest('[data-lang-option]')?.dataset.langOption;
+      if (language) setLanguage(language);
+    });
+
     mobileQuery.addEventListener('change', renderCalendars);
+    applyLanguage();
     renderCalendars();
     connectLiveUpdates();
   </script>

@@ -429,6 +429,17 @@
       return barber.charAt(0).toUpperCase() + barber.slice(1);
     }
 
+    function formatDate(date) {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      return `${day}/${month}/${year}`;
+    }
+
+    function formatTime(date) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
     function getVisibleDays() {
       const days = getNext7Days();
       return mobileQuery.matches ? [days[selectedDayIndex]] : days;
@@ -455,7 +466,7 @@
       dayTabs.innerHTML = days.map((day, index) => `
         <button type="button" class="${index === selectedDayIndex ? 'active' : ''}" data-day-tab="${index}">
           ${DAYS[day.getDay()]}
-          <small>${day.getMonth() + 1}/${day.getDate()}</small>
+          <small>${formatDate(day)}</small>
         </button>
       `).join('');
     }
@@ -473,8 +484,7 @@
     function createTableHeader(days) {
       let thead = '<tr><th class="time-col">Time</th>';
       for(let day of days) {
-        // Show day name + MM/DD date like: Sun 7/20
-        thead += `<th>${DAYS[day.getDay()]}<br>${day.getMonth() + 1}/${day.getDate()}</th>`;
+        thead += `<th>${DAYS[day.getDay()]}<br>${formatDate(day)}</th>`;
       }
       thead += '</tr>';
       return thead;
@@ -580,7 +590,8 @@
         btnCancelBooking.style.display = 'inline-block';
       } else {
         modalTitle.textContent = 'Book Appointment';
-        modalInfo.textContent = `Barber: ${currentBarber.charAt(0).toUpperCase() + currentBarber.slice(1)}\nTime: ${new Date(currentStart).toLocaleString()}`;
+        const startDate = new Date(currentStart);
+        modalInfo.textContent = `Barber: ${formatBarberName(currentBarber)}\nTime: ${formatDate(startDate)} ${formatTime(startDate)}`;
         customerInput.style.display = 'block';
         customerInput.value = '';
         btnBook.style.display = 'inline-block';

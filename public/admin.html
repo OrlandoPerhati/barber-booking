@@ -1,0 +1,546 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin - Barber Appointments</title>
+  <style>
+    :root {
+      --ink: #f7efe6;
+      --muted-ink: #d9cab8;
+      --panel: rgba(41, 31, 25, 0.78);
+      --panel-strong: rgba(28, 21, 17, 0.94);
+      --line: rgba(214, 183, 144, 0.34);
+      --line-strong: rgba(214, 183, 144, 0.56);
+      --accent: #d8b088;
+      --accent-strong: #b77d52;
+      --available: #9cb8a0;
+      --available-hover: #89a78e;
+      --available-text: #1f271f;
+      --reserved: #8f5d53;
+      --reserved-hover: #7d4f47;
+      --reserved-text: #fff5f2;
+      --time-bg: rgba(21, 17, 15, 0.82);
+      --cell-bg: rgba(255, 249, 241, 0.04);
+      --shadow: 0 22px 55px rgba(0, 0, 0, 0.32);
+    }
+    body {
+      font-family: 'Trebuchet MS', 'Gill Sans', sans-serif;
+      background:
+        linear-gradient(rgba(24, 17, 14, 0.72), rgba(22, 18, 16, 0.9)),
+        url('https://png.pngtree.com/background/20250125/original/pngtree-barber-shop-salon-setup-with-classic-chairs-and-elegant-mirrors-picture-image_16217040.jpg') center/cover fixed no-repeat;
+      color: var(--ink);
+      padding: 22px 18px 20px;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    h1 {
+      text-align: center;
+      margin: 0 0 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+      font-size: clamp(1.4rem, 2.2vw, 2rem);
+      line-height: 1.2;
+    }
+    h2 {
+      margin: 0;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: nowrap;
+    }
+    .barber-container {
+      background: linear-gradient(180deg, rgba(56, 42, 34, 0.82), var(--panel));
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      max-width: none;
+      min-width: 0;
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    table {
+      border-collapse: separate;
+      border-spacing: 5px;
+      width: 100%;
+      table-layout: fixed;
+      margin-top: 14px;
+      background: transparent;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid rgba(214, 183, 144, 0.16);
+      text-align: center;
+      vertical-align: middle;
+      width: calc((100% - 80px) / 7); /* 7 days columns */
+      height: 32px;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 4px 5px;
+      box-sizing: border-box;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      transition: background-color 0.25s ease, transform 0.2s ease, filter 0.2s ease;
+      user-select: none;
+      background: rgba(255, 248, 240, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px rgba(0, 0, 0, 0.16);
+    }
+    /* Time column */
+    th.time-col, td.time-col {
+      width: 62px;
+      cursor: default;
+      background: var(--time-bg);
+      color: var(--accent);
+      font-weight: 600;
+      border-radius: 12px;
+      font-size: 11px;
+      line-height: 1.2;
+      padding: 5px 4px;
+      border-color: rgba(214, 183, 144, 0.22);
+    }
+    th {
+      background: linear-gradient(180deg, rgba(231, 201, 169, 0.35), rgba(166, 124, 85, 0.18));
+      color: var(--ink);
+      font-weight: 600;
+      height: 50px;
+      font-size: 12px;
+      line-height: 1.25;
+      border-color: rgba(214, 183, 144, 0.28);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 22px rgba(0, 0, 0, 0.18);
+    }
+    td.available {
+      background: linear-gradient(180deg, #c4d8c6, #a4bda7 62%, #8ea792);
+      color: var(--available-text);
+      font-weight: 600;
+      border-color: rgba(156, 184, 160, 0.5);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 10px 22px rgba(34, 54, 38, 0.22);
+    }
+    td.available:hover {
+      background: linear-gradient(180deg, #cfe0d0, #9fb89f 62%, #8aa08b);
+      transform: translateY(-2px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 14px 26px rgba(34, 54, 38, 0.28);
+    }
+    td.reserved {
+      background: linear-gradient(180deg, #b27a70, #946359 62%, #7f524a);
+      color: var(--reserved-text);
+      font-weight: 600;
+      border-color: rgba(143, 93, 83, 0.52);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 22px rgba(50, 26, 22, 0.24);
+    }
+    td.reserved:hover {
+      background: linear-gradient(180deg, #ba857b, #9a695f 62%, #85574f);
+      filter: brightness(1.02);
+    }
+    td[title="No appointment slot available"],
+    td[title="Past time slot"] {
+      background: linear-gradient(180deg, rgba(255, 248, 240, 0.05), rgba(255, 248, 240, 0.02));
+      border-color: rgba(214, 183, 144, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+    /* Modal styles */
+    #modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
+      justify-content: center;
+      align-items: center;
+    }
+    #modal.active {
+      display: flex;
+    }
+    #modal-content {
+      background: linear-gradient(180deg, rgba(55, 41, 34, 0.96), var(--panel-strong));
+      padding: 30px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      width: 320px;
+      text-align: center;
+      user-select: text;
+    }
+    #modal-content h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: var(--accent);
+    }
+    #modal-content input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 249, 241, 0.08);
+      color: var(--ink);
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    #modal-content input::placeholder {
+      color: var(--muted-ink);
+    }
+    #modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    button {
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #1e1714;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      margin-top: 10px;
+      user-select: none;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+    }
+    button:hover {
+      filter: brightness(1.04);
+    }
+    #modal-cancel-btn {
+      background: linear-gradient(135deg, #9b665a, #78463f);
+      color: #fff5f2;
+    }
+    #modal-cancel-btn:hover {
+      filter: brightness(1.05);
+    }
+    #feedback {
+      margin-top: 10px;
+      min-height: 18px;
+      font-weight: 600;
+    }
+    .admin-actions {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    #logout-btn {
+      width: auto;
+      min-width: 110px;
+      margin: 0;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #9b665a, #78463f);
+      color: #fff5f2;
+      font-size: 14px;
+    }
+    @media (max-width: 1100px) {
+      body {
+        overflow: auto;
+      }
+      .container {
+        flex-wrap: wrap;
+      }
+      .barber-container {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin - Manage Appointments</h1>
+  <div class="admin-actions">
+    <button id="logout-btn" type="button">Log Out</button>
+  </div>
+  <div class="container">
+    <div class="barber-container" id="deni-container">
+      <h2>Deni's Schedule</h2>
+      <table id="deni-calendar"></table>
+    </div>
+    <div class="barber-container" id="cerri-container">
+      <h2>Cerri's Schedule</h2>
+      <table id="cerri-calendar"></table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal">
+    <div id="modal-content">
+      <h3 id="modal-title"></h3>
+      <p id="modal-info"></p>
+      <input type="text" id="customer-name" placeholder="Enter customer name" />
+      <div id="modal-buttons">
+        <button id="modal-book-btn">Book</button>
+        <button id="modal-cancel-btn">Cancel Booking</button>
+        <button id="modal-close-btn">Close</button>
+      </div>
+      <p id="feedback"></p>
+    </div>
+  </div>
+
+  <script>
+   const barberNames = ['deni', 'cerri'];
+    const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function getNext7Days() {
+      const now = new Date();
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setHours(0,0,0,0);
+        d.setDate(now.getDate() + i);
+        days.push(d);
+      }
+      return days;
+    }
+
+    async function fetchAppointments(barber) {
+      const res = await fetch(`${API_BASE}/api/admin/appointments/${barber}`);
+      if (res.status === 401) {
+        window.location.href = '/login.html';
+        return [];
+      }
+      const data = await res.json();
+      return data;
+    }
+
+    function createTableHeader(days) {
+      let thead = '<tr><th class="time-col">Time</th>';
+      for(let day of days) {
+        // Show day name + MM/DD date like: Sun 7/20
+        thead += `<th>${DAYS[day.getDay()]}<br>${day.getMonth() + 1}/${day.getDate()}</th>`;
+      }
+      thead += '</tr>';
+      return thead;
+    }
+
+    function createTableBody(appointments, days, barber) {
+  const startHour = 9;
+  const slotsPerDay = 24; // 12 hours * 2 (half-hour slots)
+  const now = new Date();
+
+  let tbody = '';
+
+  for (let slotIndex = 0; slotIndex < slotsPerDay; slotIndex++) {
+    const slotHour = startHour + Math.floor(slotIndex / 2);
+    const slotMinute = (slotIndex % 2) * 30;
+    const timeLabel = `${String(slotHour).padStart(2, '0')}:${slotMinute === 0 ? '00' : '30'}`;
+
+    tbody += `<tr><td class="time-col">${timeLabel}</td>`;
+
+    for (let dayIndex = 0; dayIndex < days.length; dayIndex++) {
+      const day = days[dayIndex];
+      const slotStart = new Date(day);
+      slotStart.setHours(slotHour, slotMinute, 0, 0);
+      const isToday = slotStart.toDateString() === now.toDateString();
+
+      if (isToday && slotStart < now) {
+        tbody += '<td title="Past time slot"></td>';
+        continue;
+      }
+
+      // Find appointment exactly matching this slot (year, month, day, hour, minute)
+      const appointment = appointments.find(app => {
+        const appStart = new Date(app.start);
+        return (
+          appStart.getFullYear() === slotStart.getFullYear() &&
+          appStart.getMonth() === slotStart.getMonth() &&
+          appStart.getDate() === slotStart.getDate() &&
+          appStart.getHours() === slotStart.getHours() &&
+          appStart.getMinutes() === slotStart.getMinutes()
+        );
+      });
+      if (appointment && appointment.customer) {
+  tbody += `<td class="reserved" data-id="${escapeHtml(appointment._id)}" title="Reserved by ${escapeHtml(appointment.customer)}">
+              ${escapeHtml(appointment.customer)}
+            </td>`;
+} else if (appointment) {
+        tbody += `<td class="available" data-barber="${escapeHtml(barber)}" data-start="${escapeHtml(slotStart.toISOString())}" title="Available slot">
+                    ${timeLabel}
+                  </td>`;
+      } else {
+        tbody += `<td title="No appointment slot available"></td>`;
+      }
+      
+    }
+    tbody += '</tr>';
+  }
+  return tbody;
+}
+
+    
+
+    async function renderCalendar(barber) {
+      const calendar = document.getElementById(`${barber}-calendar`);
+      const appointments = await fetchAppointments(barber);
+      const days = getNext7Days();
+
+      const thead = createTableHeader(days);
+      const tbody = createTableBody(appointments, days, barber);
+
+      calendar.innerHTML = thead + tbody;
+    }
+
+
+    // Modal elements
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalInfo = document.getElementById('modal-info');
+    const customerInput = document.getElementById('customer-name');
+    const feedback = document.getElementById('feedback');
+    const btnBook = document.getElementById('modal-book-btn');
+    const btnCancelBooking = document.getElementById('modal-cancel-btn');
+    const btnClose = document.getElementById('modal-close-btn');
+    const btnLogout = document.getElementById('logout-btn');
+
+    let currentCell = null;
+    let currentAppointmentId = null;
+    let currentBarber = null;
+    let currentStart = null;
+    let currentIsReserved = false;
+
+    function openModal(cell) {
+      currentCell = cell;
+      currentAppointmentId = cell.dataset.id;
+      currentBarber = cell.dataset.barber;
+      currentStart = cell.dataset.start;
+      currentIsReserved = cell.classList.contains('reserved');
+
+      if (currentIsReserved) {
+        modalTitle.textContent = 'Cancel Booking?';
+        modalInfo.textContent = `Appointment reserved by: ${cell.textContent}`;
+        customerInput.style.display = 'none';
+        btnBook.style.display = 'none';
+        btnCancelBooking.style.display = 'inline-block';
+      } else {
+        modalTitle.textContent = 'Book Appointment';
+        modalInfo.textContent = `Barber: ${currentBarber.charAt(0).toUpperCase() + currentBarber.slice(1)}\nTime: ${new Date(currentStart).toLocaleString()}`;
+        customerInput.style.display = 'block';
+        customerInput.value = '';
+        btnBook.style.display = 'inline-block';
+        btnCancelBooking.style.display = 'none';
+      }
+      feedback.textContent = '';
+      modal.classList.add('active');
+      customerInput.focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      currentCell = null;
+      currentAppointmentId = null;
+      currentBarber = null;
+      currentStart = null;
+      currentIsReserved = false;
+      feedback.textContent = '';
+    }
+
+    btnClose.onclick = closeModal;
+    btnLogout.onclick = async () => {
+      await fetch(`${API_BASE}/api/admin/logout`, { method: 'POST' });
+      window.location.href = '/login.html';
+    };
+    modal.onclick = e => {
+      if (e.target === modal) closeModal();
+    };
+
+    // Book appointment handler
+    btnBook.onclick = async () => {
+      const customer = customerInput.value.trim();
+      if (!customer) {
+        feedback.textContent = 'Please enter customer name.';
+        return;
+      }
+      feedback.textContent = 'Booking...';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/book`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            barber: currentBarber,
+            start: currentStart,
+            customer,
+          }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          feedback.style.color = '#22c55e';
+          feedback.textContent = 'Appointment booked successfully!';
+          await refreshCalendars();
+          setTimeout(closeModal, 1500);
+        } else {
+          feedback.style.color = '#dc2626';
+          feedback.textContent = data.message || 'Booking failed';
+        }
+      } catch (e) {
+        feedback.style.color = '#dc2626';
+        feedback.textContent = 'Error booking appointment';
+        console.error(e);
+      }
+    };
+
+    // Cancel appointment handler
+    btnCancelBooking.onclick = async () => {
+      if (!currentAppointmentId) return;
+      feedback.textContent = 'Cancelling...';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/cancel/${currentAppointmentId}`, {
+          method: 'DELETE',
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          feedback.style.color = '#22c55e';
+          feedback.textContent = 'Booking cancelled!';
+          await refreshCalendars();
+          setTimeout(closeModal, 1500);
+        } else {
+          feedback.style.color = '#dc2626';
+          feedback.textContent = data.message || 'Cancellation failed';
+        }
+      } catch (e) {
+        feedback.style.color = '#dc2626';
+        feedback.textContent = 'Error cancelling appointment';
+        console.error(e);
+      }
+    };
+
+    async function refreshCalendars() {
+      for (const barber of barberNames) {
+        await renderCalendar(barber);
+      }
+      attachCellListeners();
+    }
+
+    // Attach click listeners to available and reserved cells
+    function attachCellListeners() {
+      document.querySelectorAll('td.available, td.reserved').forEach(cell => {
+        cell.onclick = () => openModal(cell);
+      });
+    }
+
+    // Initial load
+    refreshCalendars();
+
+  </script>
+</body>
+</html>

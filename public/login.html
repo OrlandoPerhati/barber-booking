@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login - Barber Appointments</title>
+  <style>
+    :root {
+      --ink: #f7efe6;
+      --muted-ink: #d9cab8;
+      --panel: rgba(28, 21, 17, 0.94);
+      --line: rgba(214, 183, 144, 0.34);
+      --accent: #d8b088;
+      --accent-strong: #b77d52;
+      --error: #ff9c8f;
+      --shadow: 0 22px 55px rgba(0, 0, 0, 0.32);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(24, 17, 14, 0.72), rgba(22, 18, 16, 0.9)),
+        url("https://png.pngtree.com/background/20250125/original/pngtree-barber-shop-salon-setup-with-classic-chairs-and-elegant-mirrors-picture-image_16217040.jpg") center/cover fixed no-repeat;
+    }
+
+    main {
+      width: min(100%, 360px);
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(55, 41, 34, 0.96), var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: 1.35rem;
+      letter-spacing: 0.03em;
+      color: var(--accent);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted-ink);
+      font-size: 0.95rem;
+    }
+
+    input,
+    button {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 12px;
+      font: inherit;
+    }
+
+    input {
+      border: 1px solid var(--line);
+      padding: 0 12px;
+      color: var(--ink);
+      background: rgba(255, 249, 241, 0.08);
+    }
+
+    button {
+      margin-top: 16px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+      color: #1e1714;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    }
+
+    #feedback {
+      min-height: 20px;
+      margin: 14px 0 0;
+      color: var(--error);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Admin Login</h1>
+    <form id="login-form">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required />
+      <button type="submit">Log In</button>
+      <p id="feedback"></p>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const feedback = document.getElementById('feedback');
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      feedback.textContent = '';
+
+      const password = new FormData(form).get('password');
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      if (res.ok) {
+        window.location.href = '/admin.html';
+        return;
+      }
+
+      const data = await res.json().catch(() => ({}));
+      feedback.textContent = data.message || 'Login failed';
+    });
+  </script>
+</body>
+</html>

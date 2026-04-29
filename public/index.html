@@ -15,6 +15,7 @@
       --accent-strong: #f0d08b;
       --green: #a9c7ad;
       --shadow: 0 26px 70px rgba(0, 0, 0, 0.48);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     * {
@@ -30,6 +31,14 @@
       background:
         linear-gradient(rgba(3, 4, 4, 0.56), rgba(3, 4, 4, 0.82)),
         url("https://png.pngtree.com/background/20250125/original/pngtree-barber-shop-salon-setup-with-classic-chairs-and-elegant-mirrors-picture-image_16217040.jpg") center/cover fixed no-repeat;
+      animation: page-in 520ms var(--ease) both;
+      transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
+    }
+
+    body.page-leave {
+      opacity: 0;
+      transform: translateY(8px);
+      filter: blur(4px);
     }
 
     main {
@@ -80,6 +89,15 @@
       background: linear-gradient(180deg, rgba(18, 18, 17, 0.86), var(--panel));
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
+      animation: panel-rise 620ms var(--ease) both;
+      transition: transform 240ms var(--ease), border-color 240ms ease, box-shadow 240ms ease;
+    }
+
+    .intro:hover,
+    .info-panel:hover {
+      transform: translateY(-3px);
+      border-color: rgba(207, 174, 112, 0.52);
+      box-shadow: 0 32px 86px rgba(0, 0, 0, 0.54);
     }
 
     .intro {
@@ -139,6 +157,7 @@
       background: linear-gradient(135deg, var(--accent), var(--accent-strong));
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
       font: inherit;
+      transition: transform 180ms var(--ease), box-shadow 180ms ease, filter 180ms ease;
     }
 
     a.button.secondary,
@@ -147,6 +166,18 @@
       border: 1px solid var(--line);
       background: rgba(246, 239, 225, 0.055);
       box-shadow: none;
+    }
+
+    a.button:hover,
+    button.button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+    }
+
+    a.button:active,
+    button.button:active {
+      transform: translateY(0) scale(0.98);
     }
 
     .services-section {
@@ -161,6 +192,7 @@
 
     .services-section.active {
       display: block;
+      animation: panel-rise 420ms var(--ease) both;
     }
 
     .services-header {
@@ -196,6 +228,14 @@
       border: 1px solid rgba(207, 174, 112, 0.2);
       border-radius: 12px;
       background: rgba(246, 239, 225, 0.045);
+      transition: transform 220ms var(--ease), border-color 220ms ease, background-color 220ms ease;
+    }
+
+    .service-card:hover,
+    .info-group:hover {
+      transform: translateY(-2px);
+      border-color: rgba(207, 174, 112, 0.44);
+      background: rgba(246, 239, 225, 0.07);
     }
 
     .service-card h3 {
@@ -224,6 +264,7 @@
       border: 1px solid rgba(207, 174, 112, 0.2);
       border-radius: 12px;
       background: rgba(246, 239, 225, 0.045);
+      transition: transform 220ms var(--ease), border-color 220ms ease, background-color 220ms ease;
     }
 
     .info-group h2 {
@@ -282,6 +323,53 @@
       border-radius: 50%;
       background: var(--green);
       box-shadow: 0 0 14px rgba(169, 199, 173, 0.78);
+      animation: pulse-dot 1800ms ease-in-out infinite;
+    }
+
+    @keyframes page-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes panel-rise {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 12px rgba(169, 199, 173, 0.64);
+      }
+      50% {
+        transform: scale(1.28);
+        box-shadow: 0 0 22px rgba(169, 199, 173, 0.9);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
     }
 
     @media (max-width: 780px) {
@@ -516,6 +604,23 @@
     document.querySelector('.language-switch').addEventListener('click', event => {
       const language = event.target.closest('[data-lang-option]')?.dataset.langOption;
       if (language) setLanguage(language);
+    });
+
+    document.addEventListener('click', event => {
+      const link = event.target.closest('a[href]');
+      if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('tel:')) return;
+
+      const url = new URL(href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+
+      event.preventDefault();
+      document.body.classList.add('page-leave');
+      setTimeout(() => {
+        window.location.href = url.href;
+      }, 150);
     });
 
     document.getElementById('services-toggle').addEventListener('click', () => {

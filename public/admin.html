@@ -23,6 +23,7 @@
       --time-bg: rgba(7, 8, 8, 0.72);
       --cell-bg: rgba(246, 239, 225, 0.035);
       --shadow: 0 26px 70px rgba(0, 0, 0, 0.46);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
     body {
       font-family: 'Trebuchet MS', 'Gill Sans', sans-serif;
@@ -34,6 +35,7 @@
       margin: 0;
       min-height: 100vh;
       overflow-x: hidden;
+      animation: page-in 520ms var(--ease) both;
     }
     h1 {
       text-align: center;
@@ -69,6 +71,15 @@
       background: linear-gradient(180deg, rgba(17, 18, 18, 0.82), var(--panel));
       backdrop-filter: blur(10px);
       box-shadow: var(--shadow);
+      animation: panel-rise 560ms var(--ease) both;
+      transition: transform 220ms var(--ease), border-color 220ms ease, box-shadow 220ms ease;
+    }
+    .manual-booking:hover,
+    .barber-container:hover,
+    .settings-panel.active:hover {
+      transform: translateY(-3px);
+      border-color: rgba(207, 174, 112, 0.5);
+      box-shadow: 0 32px 86px rgba(0, 0, 0, 0.54);
     }
     .manual-booking-header {
       margin-bottom: 14px;
@@ -152,11 +163,16 @@
       color: var(--ink);
       box-shadow: none;
       font-size: 14px;
+      transition: transform 180ms var(--ease), background-color 180ms ease;
     }
     .segmented-control button.active,
     .day-strip button.active {
       background: linear-gradient(135deg, var(--accent), var(--accent-strong));
       color: #101010;
+    }
+    .segmented-control button:active,
+    .day-strip button:active {
+      transform: scale(0.97);
     }
     .barber-container {
       background: linear-gradient(180deg, rgba(17, 18, 18, 0.82), var(--panel));
@@ -171,6 +187,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      animation: panel-rise 640ms var(--ease) both;
+      transition: transform 220ms var(--ease), border-color 220ms ease, box-shadow 220ms ease;
     }
     table {
       border-collapse: separate;
@@ -234,6 +252,11 @@
       transform: translateY(-2px);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 14px 26px rgba(34, 54, 38, 0.28);
     }
+    td.available:active,
+    td.reserved:active {
+      transform: translateY(0) scale(0.96);
+      filter: brightness(1.04);
+    }
     td.reserved {
       background: linear-gradient(180deg, rgba(128, 53, 61, 0.86), rgba(101, 39, 46, 0.78) 62%, rgba(76, 27, 33, 0.76));
       color: var(--reserved-text);
@@ -270,6 +293,7 @@
     }
     #modal.active {
       display: flex;
+      animation: overlay-in 180ms ease both;
     }
     #modal-content {
       background: linear-gradient(180deg, rgba(18, 18, 17, 0.98), var(--panel-strong));
@@ -280,6 +304,7 @@
       width: 320px;
       text-align: center;
       user-select: text;
+      animation: modal-pop 240ms var(--ease) both;
     }
     #modal-content h3 {
       margin-top: 0;
@@ -319,9 +344,15 @@
       margin-top: 10px;
       user-select: none;
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+      transition: transform 180ms var(--ease), box-shadow 180ms ease, filter 180ms ease;
     }
     button:hover {
       filter: brightness(1.04);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+    }
+    button:active {
+      transform: translateY(0) scale(0.98);
     }
     #modal-cancel-btn {
       background: linear-gradient(135deg, #7b3037, #4d1d24);
@@ -372,6 +403,7 @@
     }
     .settings-panel.active {
       display: block;
+      animation: panel-rise 360ms var(--ease) both;
     }
     .settings-panel p {
       margin: 6px 0 14px;
@@ -440,6 +472,52 @@
     .language-switch button.active {
       color: #101010;
       background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    }
+    @keyframes page-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+    @keyframes panel-rise {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes overlay-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modal-pop {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
     }
     @media (max-width: 1100px) {
       body {

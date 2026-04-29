@@ -14,6 +14,7 @@
       --accent-strong: #f0d08b;
       --error: #ffb2a8;
       --shadow: 0 26px 70px rgba(0, 0, 0, 0.46);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     * {
@@ -31,6 +32,7 @@
       background:
         linear-gradient(rgba(3, 4, 4, 0.58), rgba(3, 4, 4, 0.78)),
         url("https://png.pngtree.com/background/20250125/original/pngtree-barber-shop-salon-setup-with-classic-chairs-and-elegant-mirrors-picture-image_16217040.jpg") center/cover fixed no-repeat;
+      animation: page-in 520ms var(--ease) both;
     }
 
     main {
@@ -40,6 +42,7 @@
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(18, 18, 17, 0.98), var(--panel));
       box-shadow: var(--shadow);
+      animation: panel-rise 560ms var(--ease) both;
     }
 
     h1 {
@@ -69,6 +72,14 @@
       padding: 0 12px;
       color: var(--ink);
       background: rgba(246, 239, 225, 0.065);
+      transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: rgba(207, 174, 112, 0.72);
+      background: rgba(246, 239, 225, 0.09);
+      box-shadow: 0 0 0 3px rgba(207, 174, 112, 0.14);
     }
 
     button {
@@ -78,6 +89,18 @@
       font-weight: 700;
       color: #101010;
       background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      transition: transform 180ms var(--ease), box-shadow 180ms ease, filter 180ms ease;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+    }
+
+    button:active {
+      transform: translateY(0) scale(0.98);
     }
 
     #feedback {
@@ -110,6 +133,37 @@
     .language-switch button.active {
       color: #101010;
       background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    }
+    @keyframes page-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+    @keyframes panel-rise {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
